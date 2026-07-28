@@ -1,0 +1,36 @@
+# Maven
+backend/target/
+backend/**/target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Temp
+*.tmp
+*.swp
+*.bak

@@ -1,0 +1,2 @@
+# 本目录用于存放 MyBatis XML 映射文件
+# 当前阶段使用 BaseMapper + LambdaQueryWrapper，无需 XML 文件
