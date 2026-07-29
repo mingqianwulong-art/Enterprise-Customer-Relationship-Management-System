@@ -27,6 +27,7 @@
         <module>crm-customer</module>
         <module>crm-market</module>
         <module>crm-business</module>
+        <module>crm-service</module>
         <module>crm-admin</module>
     </modules>
 
@@ -40,6 +41,8 @@
         <springdoc.version>2.3.0</springdoc.version>
         <hutool.version>5.8.22</hutool.version>
         <druid.version>1.2.20</druid.version>
+        <!-- Lombok 版本（覆盖 Spring Boot 3.2.0 默认的 1.18.30，以兼容 JDK 25 的注解处理） -->
+        <lombok.version>1.18.42</lombok.version>
     </properties>
 
     <!-- 依赖版本统一管理（子模块引用时无需指定版本） -->
@@ -111,6 +114,11 @@
                 <artifactId>crm-business</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.crm</groupId>
+                <artifactId>crm-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -123,6 +131,14 @@
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <encoding>UTF-8</encoding>
+                    <!-- JDK 23+ 不再隐式从 classpath 发现注解处理器，需显式声明 Lombok -->
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
                 </configuration>
             </plugin>
         </plugins>
