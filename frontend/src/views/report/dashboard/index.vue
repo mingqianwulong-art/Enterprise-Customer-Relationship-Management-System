@@ -283,8 +283,8 @@ async function loadOrderStatus() {
   try {
     const res = await getOrderStatusStats()
     const data = res.data || []
-    const statusMap: Record<number, string> = { 0: '待处理', 1: '处理中', 2: '已解决', 3: '已完成' }
-    const colors = ['#f56c6c', '#e6a23c', '#409eff', '#67c23a']
+    const statusMap: Record<number, string> = { 0: '待处理', 1: '处理中', 2: '待反馈', 3: '已完成', 4: '已关闭', 5: '已取消' }
+    const colors = ['#f56c6c', '#e6a23c', '#409eff', '#67c23a', '#909399', '#c0c4cc']
     if (orderStatusChart) {
       orderStatusChart.setOption({
         tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
@@ -326,11 +326,6 @@ function initCharts() {
     orderStatusChart = echarts.init(orderStatusChartRef.value)
   }
 
-  loadTrend()
-  loadIndustry()
-  loadRanking()
-  loadOrderStatus()
-
   window.addEventListener('resize', handleResize)
 }
 
@@ -346,6 +341,8 @@ async function loadAll() {
   await loadOverview()
   await nextTick()
   initCharts()
+  // 等待所有图表数据加载完毕再关闭loading
+  await Promise.all([loadTrend(), loadIndustry(), loadRanking(), loadOrderStatus()])
   loading.value = false
 }
 

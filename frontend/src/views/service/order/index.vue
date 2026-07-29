@@ -487,7 +487,7 @@ function handleSatisfaction(row: any) {
 
 async function submitSatisfaction() {
   if (!currentOrder.value) return
-  if (!satisfactionForm.satisfaction) {
+  if (satisfactionForm.satisfaction == null || satisfactionForm.satisfaction === undefined) {
     ElMessage.warning('请选择满意度评分')
     return
   }

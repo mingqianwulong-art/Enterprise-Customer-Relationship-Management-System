@@ -13,40 +13,40 @@
     </div>
 
     <!-- 数据卡片 -->
-    <el-row :gutter="20" class="data-cards">
+    <el-row :gutter="20" class="data-cards" v-loading="loading">
       <el-col :span="6">
         <div class="stat-card" style="border-left-color: #409eff;">
           <div class="stat-card-header">
-            <span class="stat-label">待跟进客户</span>
-            <el-tag type="warning" size="small">待处理</el-tag>
+            <span class="stat-label">客户总数</span>
+            <el-tag type="primary" size="small">全部</el-tag>
           </div>
-          <div class="stat-value">128</div>
+          <div class="stat-value">{{ stats.totalCustomers }}</div>
           <div class="stat-footer">
-            <span>较昨日 <i class="up">↑ 12%</i></span>
+            <span>本月新增 <b style="color: #409eff;">{{ stats.monthlyNewCustomers }}</b> 家</span>
           </div>
         </div>
       </el-col>
       <el-col :span="6">
         <div class="stat-card" style="border-left-color: #67c23a;">
           <div class="stat-card-header">
-            <span class="stat-label">本月新增客户</span>
-            <el-tag type="success" size="small">增长中</el-tag>
+            <span class="stat-label">线索转化率</span>
+            <el-tag type="success" size="small">转化中</el-tag>
           </div>
-          <div class="stat-value">56</div>
+          <div class="stat-value">{{ stats.clueConversionRate }}%</div>
           <div class="stat-footer">
-            <span>较上月 <i class="up">↑ 8%</i></span>
+            <span>已转化 <b style="color: #67c23a;">{{ stats.convertedClues }}</b> / {{ stats.totalClues }} 条</span>
           </div>
         </div>
       </el-col>
       <el-col :span="6">
         <div class="stat-card" style="border-left-color: #e6a23c;">
           <div class="stat-card-header">
-            <span class="stat-label">进行中商机</span>
-            <el-tag type="primary" size="small">跟踪中</el-tag>
+            <span class="stat-label">商机赢单率</span>
+            <el-tag type="warning" size="small">跟踪中</el-tag>
           </div>
-          <div class="stat-value">35</div>
+          <div class="stat-value">{{ stats.winRate }}%</div>
           <div class="stat-footer">
-            <span>预计成交额 <b>¥ 286 万</b></span>
+            <span>赢单 <b style="color: #e6a23c;">{{ stats.wonOpportunities }}</b> / {{ stats.totalOpportunities }} 个</span>
           </div>
         </div>
       </el-col>
@@ -54,11 +54,11 @@
         <div class="stat-card" style="border-left-color: #f56c6c;">
           <div class="stat-card-header">
             <span class="stat-label">待处理工单</span>
-            <el-tag type="danger" size="small">紧急</el-tag>
+            <el-tag type="danger" size="small">待办</el-tag>
           </div>
-          <div class="stat-value">9</div>
+          <div class="stat-value">{{ stats.pendingOrders }}</div>
           <div class="stat-footer">
-            <span>其中紧急工单 <b style="color: #f56c6c;">3</b> 个</span>
+            <span>已完成 <b style="color: #67c23a;">{{ stats.completedOrders }}</b> / {{ stats.totalOrders }} 个</span>
           </div>
         </div>
       </el-col>
@@ -67,10 +67,51 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { getOverview } from '@/api/report'
 
 const userStore = useUserStore()
+const loading = ref(false)
+
+const stats = reactive({
+  totalCustomers: 0,
+  monthlyNewCustomers: 0,
+  clueConversionRate: 0,
+  convertedClues: 0,
+  totalClues: 0,
+  winRate: 0,
+  wonOpportunities: 0,
+  totalOpportunities: 0,
+  pendingOrders: 0,
+  completedOrders: 0,
+  totalOrders: 0
+})
+
+async function loadStats() {
+  loading.value = true
+  try {
+    const res = await getOverview()
+    const data = res.data
+    if (data) {
+      stats.totalCustomers = data.totalCustomers ?? 0
+      stats.monthlyNewCustomers = data.monthlyNewCustomers ?? 0
+      stats.clueConversionRate = data.clueConversionRate ?? 0
+      stats.convertedClues = data.convertedClues ?? 0
+      stats.totalClues = data.totalClues ?? 0
+      stats.winRate = data.winRate ?? 0
+      stats.wonOpportunities = data.wonOpportunities ?? 0
+      stats.totalOpportunities = data.totalOpportunities ?? 0
+      stats.completedOrders = data.completedOrders ?? 0
+      stats.totalOrders = data.totalOrders ?? 0
+      stats.pendingOrders = (data.totalOrders ?? 0) - (data.completedOrders ?? 0)
+    }
+  } catch (e) {
+    console.error('加载工作台数据失败', e)
+  } finally {
+    loading.value = false
+  }
+}
 
 /** 今天的日期 */
 const today = computed(() => {
@@ -82,6 +123,8 @@ const today = computed(() => {
   const w = weekDays[date.getDay()]
   return `${y}年${m}月${d}日 星期${w}`
 })
+
+onMounted(() => loadStats())
 </script>
 
 <style scoped>
@@ -162,10 +205,5 @@ const today = computed(() => {
 .stat-footer {
   font-size: 13px;
   color: #909399;
-}
-
-.stat-footer .up {
-  color: #67c23a;
-  font-style: normal;
 }
 </style>

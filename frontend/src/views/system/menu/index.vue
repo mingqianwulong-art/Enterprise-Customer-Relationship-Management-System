@@ -15,9 +15,9 @@
         style="width: 100%"
       >
         <el-table-column label="菜单名称" prop="name" min-width="180" />
-        <el-table-column label="图标" prop="icon" width="80" align="center">
+        <el-table-column label="图标" prop="icon" width="100" align="center">
           <template #default="{ row }">
-            <el-icon v-if="row.icon" :size="16"><component :is="row.icon" /></el-icon>
+            <span v-if="row.icon" class="icon-text">{{ row.icon }}</span>
             <span v-else>-</span>
           </template>
         </el-table-column>
