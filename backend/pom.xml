@@ -25,6 +25,7 @@
         <module>crm-common</module>
         <module>crm-system</module>
         <module>crm-customer</module>
+        <module>crm-market</module>
         <module>crm-admin</module>
     </modules>
 
@@ -97,6 +98,11 @@
             <dependency>
                 <groupId>com.crm</groupId>
                 <artifactId>crm-customer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.crm</groupId>
+                <artifactId>crm-market</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

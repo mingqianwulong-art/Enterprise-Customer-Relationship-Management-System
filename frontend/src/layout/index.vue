@@ -3,7 +3,7 @@
     <!-- 左侧边栏 -->
     <el-aside :width="appStore.sidebarCollapsed ? '64px' : '220px'" class="layout-aside">
       <div class="aside-logo" @click="appStore.toggleSidebar()">
-        <img v-if="!appStore.sidebarCollapsed" src="/favicon.ico" class="logo-img" alt="logo" />
+        <el-icon v-if="!appStore.sidebarCollapsed" :size="28" color="#409eff"><DataAnalysis /></el-icon>
         <span v-if="!appStore.sidebarCollapsed" class="logo-title">CRM 系统</span>
         <span v-else class="logo-mini">CRM</span>
       </div>
@@ -15,38 +15,38 @@
         background-color="#304156"
         text-color="#bfcbd9"
         active-text-color="#409eff"
-        router
         class="aside-menu"
+        @select="handleMenuSelect"
       >
-        <template v-for="item in menuList" :key="item.path">
-          <!-- 有子菜单 -->
-          <el-sub-menu v-if="item.children && item.children.length" :index="item.path">
-            <template #title>
+          <template v-for="item in menuList" :key="item.path">
+            <!-- 有子菜单 -->
+            <el-sub-menu v-if="item.children && item.children.length" :index="item.path">
+              <template #title>
+                <el-icon v-if="item.meta?.icon">
+                  <component :is="item.meta.icon" />
+                </el-icon>
+                <span>{{ item.meta?.title }}</span>
+              </template>
+              <el-menu-item
+                v-for="child in item.children"
+                :key="child.path"
+                :index="child.path"
+              >
+                <el-icon v-if="child.meta?.icon">
+                  <component :is="child.meta.icon" />
+                </el-icon>
+                <span>{{ child.meta?.title }}</span>
+              </el-menu-item>
+            </el-sub-menu>
+            <!-- 无子菜单 -->
+            <el-menu-item v-else :index="item.path">
               <el-icon v-if="item.meta?.icon">
                 <component :is="item.meta.icon" />
               </el-icon>
               <span>{{ item.meta?.title }}</span>
-            </template>
-            <el-menu-item
-              v-for="child in item.children"
-              :key="child.path"
-              :index="child.path"
-            >
-              <el-icon v-if="child.meta?.icon">
-                <component :is="child.meta.icon" />
-              </el-icon>
-              <span>{{ child.meta?.title }}</span>
             </el-menu-item>
-          </el-sub-menu>
-          <!-- 无子菜单 -->
-          <el-menu-item v-else :index="item.path">
-            <el-icon v-if="item.meta?.icon">
-              <component :is="item.meta.icon" />
-            </el-icon>
-            <span>{{ item.meta?.title }}</span>
-          </el-menu-item>
-        </template>
-      </el-menu>
+          </template>
+        </el-menu>
     </el-aside>
 
     <!-- 右侧主体 -->
@@ -103,7 +103,7 @@
 import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Fold, Expand, ArrowDown } from '@element-plus/icons-vue'
+import { Fold, Expand, ArrowDown, DataAnalysis } from '@element-plus/icons-vue'
 import { useAppStore } from '@/stores/app'
 import { useUserStore } from '@/stores/user'
 
@@ -123,7 +123,7 @@ watch(
   { immediate: true }
 )
 
-/** 菜单列表 - 后续接入后端菜单数据 */
+/** 菜单列表 */
 const menuList = computed(() => [
   {
     path: '/dashboard',
@@ -186,6 +186,11 @@ const menuList = computed(() => [
   }
 ])
 
+/** 菜单点击导航 */
+function handleMenuSelect(index: string) {
+  router.push(index)
+}
+
 /** 处理用户下拉菜单命令 */
 function handleCommand(command: string) {
   if (command === 'logout') {
@@ -209,6 +214,8 @@ function handleCommand(command: string) {
   background-color: #304156;
   transition: width 0.3s;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .aside-logo {
@@ -218,12 +225,7 @@ function handleCommand(command: string) {
   justify-content: center;
   cursor: pointer;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.logo-img {
-  width: 28px;
-  height: 28px;
-  margin-right: 8px;
+  flex-shrink: 0;
 }
 
 .logo-title {
@@ -239,8 +241,12 @@ function handleCommand(command: string) {
   color: #409eff;
 }
 
+/* 菜单 */
 .aside-menu {
   border-right: none;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* 顶部栏 */

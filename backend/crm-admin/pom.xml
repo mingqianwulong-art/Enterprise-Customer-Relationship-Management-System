@@ -31,6 +31,10 @@
             <groupId>com.crm</groupId>
             <artifactId>crm-customer</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.crm</groupId>
+            <artifactId>crm-market</artifactId>
+        </dependency>
 
         <!-- Spring Boot Web -->
         <dependency>
