@@ -43,6 +43,10 @@
             <groupId>com.crm</groupId>
             <artifactId>crm-service</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.crm</groupId>
+            <artifactId>crm-report</artifactId>
+        </dependency>
 
         <!-- Spring Boot Web -->
         <dependency>

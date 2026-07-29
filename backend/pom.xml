@@ -28,6 +28,7 @@
         <module>crm-market</module>
         <module>crm-business</module>
         <module>crm-service</module>
+        <module>crm-report</module>
         <module>crm-admin</module>
     </modules>
 
@@ -117,6 +118,11 @@
             <dependency>
                 <groupId>com.crm</groupId>
                 <artifactId>crm-service</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.crm</groupId>
+                <artifactId>crm-report</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
