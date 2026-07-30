@@ -27,8 +27,11 @@ request.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
-    // POST/PUT 请求体清理空字符串
-    if (config.data && typeof config.data === 'object') {
+    // POST/PUT 请求体清理空字符串（跳过 FormData 文件上传）
+    if (config.data instanceof FormData) {
+      // FormData 由浏览器自动设置带 boundary 的 Content-Type
+      delete config.headers['Content-Type']
+    } else if (config.data && typeof config.data === 'object') {
       config.data = cleanEmptyStrings(config.data)
     }
     return config
