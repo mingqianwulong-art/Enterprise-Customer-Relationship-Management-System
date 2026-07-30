@@ -117,7 +117,11 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean addCustomer(Customer customer) {
-        // 信用代码查重
+        // 信用代码为空时设为null，避免空字符串触发唯一约束冲突
+        if (customer.getCreditCode() != null && customer.getCreditCode().isEmpty()) {
+            customer.setCreditCode(null);
+        }
+        // 信用代码查重（非空时才校验）
         if (customer.getCreditCode() != null && !customer.getCreditCode().isEmpty()) {
             Long count = baseMapper.selectCount(
                     new LambdaQueryWrapper<Customer>()

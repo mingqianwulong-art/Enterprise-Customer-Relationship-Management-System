@@ -70,6 +70,9 @@
         <el-form-item v-if="isEdit" label="合同编号">
           <el-input v-model="form.contractNo" readonly />
         </el-form-item>
+        <el-form-item v-else label="合同编号">
+          <el-input value="系统自动生成" readonly disabled style="background-color: #f5f7fa" />
+        </el-form-item>
         <el-form-item label="合同名称" prop="contractName">
           <el-input v-model="form.contractName" placeholder="请输入合同名称" />
         </el-form-item>

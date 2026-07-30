@@ -107,6 +107,12 @@
     <!-- 新增/编辑/查看弹窗 -->
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="600px" @closed="resetForm">
       <el-form ref="formRef" :model="form" :rules="rules" label-width="110px" :disabled="viewMode">
+        <el-form-item label="回款编号" v-if="isEdit || viewMode">
+          <el-input v-model="form.paymentNo" readonly />
+        </el-form-item>
+        <el-form-item label="回款编号" v-else>
+          <el-input value="系统自动生成" readonly disabled style="background-color: #f5f7fa" />
+        </el-form-item>
         <el-form-item label="合同ID" prop="contractId">
           <el-input-number v-model="form.contractId" :min="1" controls-position="right" style="width: 100%" />
         </el-form-item>
@@ -235,6 +241,7 @@ const form = reactive({
 })
 const rules: FormRules = {
   contractId: [{ required: true, message: '请输入合同ID', trigger: 'blur' }],
+  customerId: [{ required: true, message: '请输入客户ID', trigger: 'blur' }],
   customerName: [{ required: true, message: '请输入客户名称', trigger: 'blur' }],
   paymentStage: [{ required: true, message: '请选择回款阶段', trigger: 'change' }],
   planDate: [{ required: true, message: '请选择计划回款日期', trigger: 'change' }],

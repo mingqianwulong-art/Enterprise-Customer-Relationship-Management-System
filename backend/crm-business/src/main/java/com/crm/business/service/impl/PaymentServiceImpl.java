@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * 回款服务实现
@@ -21,6 +23,8 @@ import java.time.LocalDate;
  */
 @Service
 public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> implements IPaymentService {
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
 
     /**
      * 分页查询回款
@@ -52,10 +56,14 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
     }
 
     /**
-     * 新增回款记录
+     * 新增回款记录（自动生成回款编号 HK-yyyyMMdd-xxx）
      */
     @Override
     public boolean addPayment(Payment payment) {
+        // 自动生成回款编号：HK-yyyyMMdd-时间戳后3位
+        String dateStr = LocalDateTime.now().format(DATE_FORMATTER);
+        String seq = String.format("%03d", System.currentTimeMillis() % 1000);
+        payment.setPaymentNo("HK-" + dateStr + "-" + seq);
         // 默认待回款
         if (payment.getStatus() == null) {
             payment.setStatus(0);
