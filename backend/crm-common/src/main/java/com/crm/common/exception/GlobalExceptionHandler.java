@@ -88,6 +88,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public R<Void> handleException(Exception e) {
         log.error("系统异常: {}", e.getMessage(), e);
-        return R.failed(500, "系统异常，请联系管理员");
+        // 返回具体异常信息，方便排查问题
+        String msg = e.getMessage();
+        if (msg == null || msg.isEmpty()) {
+            msg = e.getClass().getSimpleName();
+        }
+        return R.failed(500, "操作失败：" + msg);
     }
 }
