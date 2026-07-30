@@ -8,12 +8,28 @@ const request = axios.create({
   headers: { 'Content-Type': 'application/json' }
 })
 
+// 清理请求体中的空字符串（转为 undefined，避免后端唯一约束冲突）
+function cleanEmptyStrings(data: any): any {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return data
+  const cleaned = { ...data }
+  for (const key of Object.keys(cleaned)) {
+    if (cleaned[key] === '') {
+      delete cleaned[key]
+    }
+  }
+  return cleaned
+}
+
 // 请求拦截器：自动带 token
 request.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+    }
+    // POST/PUT 请求体清理空字符串
+    if (config.data && typeof config.data === 'object') {
+      config.data = cleanEmptyStrings(config.data)
     }
     return config
   },
