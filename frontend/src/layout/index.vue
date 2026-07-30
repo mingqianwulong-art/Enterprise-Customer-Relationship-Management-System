@@ -76,7 +76,7 @@
             <div class="user-info">
               <el-avatar :size="32" icon="UserFilled" />
               <span class="user-name">
-                {{ userStore.userInfo?.nickname || userStore.userInfo?.username || '未登录' }}
+                {{ userStore.userInfo?.realName || userStore.userInfo?.username || '未登录' }}
               </span>
               <el-icon><ArrowDown /></el-icon>
             </div>
@@ -197,9 +197,9 @@ function handleCommand(command: string) {
     userStore.logoutAction()
     ElMessage.success('已退出登录')
   } else if (command === 'profile') {
-    ElMessage.info('个人信息页面开发中')
+    router.push('/system/profile')
   } else if (command === 'password') {
-    ElMessage.info('修改密码页面开发中')
+    router.push('/system/password')
   }
 }
 </script>

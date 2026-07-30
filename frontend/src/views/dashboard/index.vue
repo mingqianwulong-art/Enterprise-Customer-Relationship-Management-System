@@ -7,7 +7,7 @@
     <!-- 欢迎信息 -->
     <div class="welcome-card">
       <div class="welcome-text">
-        <h3>欢迎回来，{{ userStore.userInfo?.nickname || userStore.userInfo?.username || '管理员' }}</h3>
+        <h3>欢迎回来，{{ userStore.userInfo?.realName || userStore.userInfo?.username || '管理员' }}</h3>
         <p>今天是 {{ today }}，祝您工作愉快！</p>
       </div>
     </div>

@@ -51,6 +51,18 @@ const router = createRouter({
           component: () => import('@/views/system/log/index.vue'),
           meta: { title: '操作日志', icon: 'List' }
         },
+        {
+          path: 'system/profile',
+          name: 'SystemProfile',
+          component: () => import('@/views/system/profile/index.vue'),
+          meta: { title: '个人信息', hidden: true }
+        },
+        {
+          path: 'system/password',
+          name: 'SystemPassword',
+          component: () => import('@/views/system/password/index.vue'),
+          meta: { title: '修改密码', hidden: true }
+        },
         // 市场获客
         {
           path: 'market/clue',
