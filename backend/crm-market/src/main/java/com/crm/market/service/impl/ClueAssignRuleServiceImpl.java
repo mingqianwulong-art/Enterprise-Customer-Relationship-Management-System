@@ -75,10 +75,10 @@ public class ClueAssignRuleServiceImpl implements ClueAssignRuleService {
      */
     @Async
     @Override
-    public boolean autoAssignAndNotify(Clue clue) {
+    public void autoAssignAndNotify(Clue clue) {
         Long userId = autoAssign(clue.getId());
         if (userId == null) {
-            return false;
+            return;
         }
         // 发送消息通知（复用 sys_message 表）
         try {
@@ -94,7 +94,6 @@ public class ClueAssignRuleServiceImpl implements ClueAssignRuleService {
         } catch (Exception e) {
             log.error("[线索分配] 通知发送失败 userId={} clueId={}", userId, clue.getId(), e);
         }
-        return true;
     }
 
     /**

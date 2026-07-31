@@ -25,12 +25,11 @@ public interface ClueAssignRuleService {
     Long autoAssign(Long clueId);
 
     /**
-     * 自动分配线索并发送通知
+     * 自动分配线索并发送通知（异步执行）
      *
      * @param clue 线索信息
-     * @return 是否分配成功
      */
-    boolean autoAssignAndNotify(Clue clue);
+    void autoAssignAndNotify(Clue clue);
 
     /**
      * 批量自动分配所有待分配线索

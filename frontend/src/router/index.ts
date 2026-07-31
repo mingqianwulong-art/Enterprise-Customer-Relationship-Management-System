@@ -188,7 +188,7 @@ const router = createRouter({
 })
 
 // 路由守卫：未登录跳登录页
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const token = localStorage.getItem('token')
   if (to.path === '/login' || to.path === '/register' || to.path === '/forgot-password') {
     if (token) {
@@ -196,13 +196,26 @@ router.beforeEach((to, _from, next) => {
     } else {
       next()
     }
-  } else {
-    if (!token) {
+    return
+  }
+  if (!token) {
+    next('/login')
+    return
+  }
+  // token 存在但用户信息丢失（例如清过浏览器缓存）时，重新拉取一次
+  // 避免 hasPerm 全部返回 false 导致左侧菜单只剩"工作台"
+  const { useUserStore } = await import('@/stores/user')
+  const userStore = useUserStore()
+  if (!userStore.userInfo) {
+    try {
+      await userStore.fetchUserInfo()
+    } catch {
+      // token 失效，跳登录页
       next('/login')
-    } else {
-      next()
+      return
     }
   }
+  next()
 })
 
 export default router

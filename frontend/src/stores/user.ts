@@ -5,10 +5,29 @@ import router from '@/router'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref(localStorage.getItem('token') || '')
-  const userInfo = ref<any>(null)
-  const permissions = ref<string[]>([])
-  const roles = ref<string[]>([])
-  const menus = ref<any[]>([])
+
+  // 刷新页面后从 localStorage 恢复用户信息（含 permissions/roles/menus）
+  // 否则 hasPerm 会全部返回 false，导致左侧菜单只剩无 perms 的"工作台"
+  const cachedUserInfo = localStorage.getItem('userInfo')
+  let initialUserInfo: any = null
+  let initialPermissions: string[] = []
+  let initialRoles: string[] = []
+  let initialMenus: any[] = []
+  if (cachedUserInfo) {
+    try {
+      const parsed = JSON.parse(cachedUserInfo)
+      initialUserInfo = parsed.user || null
+      initialPermissions = parsed.permissions || []
+      initialRoles = parsed.roles || []
+      initialMenus = parsed.menus || []
+    } catch {
+      // 缓存损坏，忽略
+    }
+  }
+  const userInfo = ref<any>(initialUserInfo)
+  const permissions = ref<string[]>(initialPermissions)
+  const roles = ref<string[]>(initialRoles)
+  const menus = ref<any[]>(initialMenus)
 
   /** 登录 */
   async function loginAction(data: { username: string; password: string }) {
@@ -28,6 +47,17 @@ export const useUserStore = defineStore('user', () => {
     return true
   }
 
+  /** 拉取最新的用户信息（供路由守卫在 token 存在但 store 为空时调用） */
+  async function fetchUserInfo() {
+    const infoRes: any = await getInfoApi()
+    const infoData = infoRes.data
+    userInfo.value = infoData.user
+    permissions.value = infoData.permissions || []
+    roles.value = infoData.roles || []
+    menus.value = infoData.menus || []
+    localStorage.setItem('userInfo', JSON.stringify(infoData))
+  }
+
   /** 退出登录 */
   async function logoutAction() {
     try {
@@ -44,5 +74,5 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  return { token, userInfo, permissions, roles, menus, loginAction, logoutAction }
+  return { token, userInfo, permissions, roles, menus, loginAction, logoutAction, fetchUserInfo }
 })

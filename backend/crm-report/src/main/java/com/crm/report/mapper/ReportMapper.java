@@ -190,7 +190,7 @@ public interface ReportMapper {
             "FROM cus_customer c " +
             "LEFT JOIN sys_user u ON u.id = c.owner_id AND u.deleted = 0 " +
             "WHERE c.deleted = 0 AND c.in_pool = 0 " +
-            "AND (c.last_follow_time IS NULL OR c.last_follow_time &lt; DATE_SUB(NOW(), INTERVAL #{thresholdDays} DAY)) " +
+            "AND (c.last_follow_time IS NULL OR c.last_follow_time < DATE_SUB(NOW(), INTERVAL #{thresholdDays} DAY)) " +
             "ORDER BY daysSinceLastFollow ASC")
     List<com.crm.report.vo.ChurnRiskVO> getChurnRiskCustomers(@Param("thresholdDays") int thresholdDays);
 

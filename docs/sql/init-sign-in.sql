@@ -16,6 +16,6 @@ CREATE TABLE IF NOT EXISTS `bus_sign_in` (
     KEY `idx_customer` (`customer_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='外勤签到表';
 
--- 菜单：外勤签到
-INSERT INTO `sys_menu` (`title`, `path`, `icon`, `type`, `permission`, `sort`, `parent_id`, `visible`)
-VALUES ('外勤签到', '/business/sign-in', 'Location', 2, 'business:sign:list', 30, 0, 1);
+-- 菜单：外勤签到（挂在"商机管理"下，parent_id=4）
+INSERT INTO `sys_menu` (`name`, `path`, `icon`, `type`, `perms`, `order_num`, `parent_id`, `visible`)
+VALUES ('外勤签到', '/business/sign-in', 'Location', 2, 'business:sign:list', 30, 4, 1);
