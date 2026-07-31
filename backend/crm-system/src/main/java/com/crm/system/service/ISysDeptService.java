@@ -18,4 +18,12 @@ public interface ISysDeptService extends IService<SysDept> {
      * @return 部门列表
      */
     List<SysDept> listDeptTree();
+
+    /**
+     * 查询部门及其所有子部门ID列表（含自身）
+     *
+     * @param deptId 部门ID
+     * @return 部门ID列表（含自身及所有子部门）
+     */
+    List<Long> getChildDeptIds(Long deptId);
 }

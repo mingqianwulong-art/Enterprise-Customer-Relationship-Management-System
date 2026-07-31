@@ -9,12 +9,15 @@ import com.crm.business.mapper.PaymentMapper;
 import com.crm.business.service.IPaymentService;
 import com.crm.business.vo.PaymentPageDTO;
 import com.crm.common.exception.BusinessException;
+import com.crm.system.service.DataPermissionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * 回款服务实现
@@ -25,6 +28,9 @@ import java.time.format.DateTimeFormatter;
 public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> implements IPaymentService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+    @Autowired
+    private DataPermissionService dataPermissionService;
 
     /**
      * 分页查询回款
@@ -40,6 +46,11 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
                 .eq(dto.getStatus() != null,
                         Payment::getStatus, dto.getStatus())
                 .orderByDesc(Payment::getCreateTime);
+        // 数据权限过滤
+        List<Long> visibleOwnerIds = dataPermissionService.getVisibleOwnerIds();
+        if (visibleOwnerIds != null) {
+            wrapper.in(Payment::getOwnerId, visibleOwnerIds);
+        }
         return baseMapper.selectPage(page, wrapper);
     }
 

@@ -1,6 +1,7 @@
 package com.crm.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.crm.system.dto.RegisterDTO;
 import com.crm.system.dto.UserPageDTO;
 import com.crm.system.entity.SysUser;
 import com.crm.system.vo.LoginUserVO;
@@ -21,6 +22,13 @@ public interface ISysUserService extends IService<SysUser> {
      * @return 登录返回信息
      */
     LoginVO login(String username, String password);
+
+    /**
+     * 用户注册
+     *
+     * @param dto 注册信息
+     */
+    void register(RegisterDTO dto);
 
     /**
      * 获取登录用户信息（角色、权限、菜单树）
@@ -79,4 +87,12 @@ public interface ISysUserService extends IService<SysUser> {
      * @return 是否成功
      */
     boolean changeStatus(Long userId, Integer status);
+
+    /**
+     * 查询部门ID集合下的所有用户ID
+     *
+     * @param deptIds 部门ID集合
+     * @return 用户ID列表
+     */
+    java.util.List<Long> getUserIdsByDeptIds(java.util.List<Long> deptIds);
 }

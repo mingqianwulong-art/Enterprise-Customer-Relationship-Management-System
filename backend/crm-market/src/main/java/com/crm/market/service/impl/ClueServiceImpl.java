@@ -9,7 +9,11 @@ import com.crm.market.entity.Clue;
 import com.crm.market.mapper.ClueMapper;
 import com.crm.market.service.IClueService;
 import com.crm.market.vo.CluePageDTO;
+import com.crm.system.service.DataPermissionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 线索服务实现
@@ -18,6 +22,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ClueServiceImpl extends ServiceImpl<ClueMapper, Clue> implements IClueService {
+
+    @Autowired
+    private DataPermissionService dataPermissionService;
 
     /**
      * 分页查询线索
@@ -39,6 +46,11 @@ public class ClueServiceImpl extends ServiceImpl<ClueMapper, Clue> implements IC
                 .eq(dto.getChannelId() != null,
                         Clue::getChannelId, dto.getChannelId())
                 .orderByDesc(Clue::getCreateTime);
+        // 数据权限过滤
+        List<Long> visibleOwnerIds = dataPermissionService.getVisibleOwnerIds();
+        if (visibleOwnerIds != null) {
+            wrapper.in(Clue::getOwnerId, visibleOwnerIds);
+        }
         return baseMapper.selectPage(page, wrapper);
     }
 

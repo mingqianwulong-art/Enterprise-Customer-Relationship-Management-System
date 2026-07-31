@@ -62,6 +62,9 @@
               {{ loading ? '登录中...' : '登 录' }}
             </el-button>
           </el-form-item>
+          <div class="login-footer">
+            还没有账号？<el-link type="primary" @click="$router.push('/register')">立即注册</el-link>
+          </div>
         </el-form>
       </div>
     </div>
@@ -244,5 +247,11 @@ async function handleLogin() {
 .login-btn {
   width: 100%;
   margin-top: 8px;
+}
+
+.login-footer {
+  text-align: center;
+  font-size: 14px;
+  color: #606266;
 }
 </style>

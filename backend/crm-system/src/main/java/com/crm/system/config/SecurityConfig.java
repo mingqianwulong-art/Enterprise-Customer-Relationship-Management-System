@@ -49,6 +49,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 放行登录接口
                 .requestMatchers("/auth/login").permitAll()
+                // 放行注册接口
+                .requestMatchers("/auth/register").permitAll()
+                // 放行短信验证码接口
+                .requestMatchers("/auth/sms/send").permitAll()
                 // 放行接口文档
                 .requestMatchers("/doc.html").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()

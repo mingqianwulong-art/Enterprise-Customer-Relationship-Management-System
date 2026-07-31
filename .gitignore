@@ -30,6 +30,15 @@ Thumbs.db
 .env.local
 .env.*.local
 
+# 敏感配置（本地实际密钥，请勿提交；请使用 application-dev.yml.template 作为模板）
+backend/crm-admin/src/main/resources/application-dev.yml
+
+# 上传文件目录（运行时生成）
+uploads/
+
+# 临时测试脚本
+test-upload.ps1
+
 # Temp
 *.tmp
 *.swp

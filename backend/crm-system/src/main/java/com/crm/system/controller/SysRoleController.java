@@ -3,12 +3,14 @@ package com.crm.system.controller;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.crm.common.api.R;
+import com.crm.common.constant.Perms;
 import com.crm.system.annotation.Log;
 import com.crm.system.entity.SysRole;
 import com.crm.system.service.ISysRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,6 +63,7 @@ public class SysRoleController {
      */
     @Operation(summary = "新增角色")
     @Log("新增角色")
+    @PreAuthorize("hasAuthority('" + Perms.ROLE_ADD + "')")
     @PostMapping
     public R add(@RequestBody SysRole role) {
         return roleService.save(role) ? R.ok() : R.fail("新增失败");
@@ -71,6 +74,7 @@ public class SysRoleController {
      */
     @Operation(summary = "修改角色")
     @Log("修改角色")
+    @PreAuthorize("hasAuthority('" + Perms.ROLE_EDIT + "')")
     @PutMapping
     public R update(@RequestBody SysRole role) {
         return roleService.updateById(role) ? R.ok() : R.fail("修改失败");
@@ -81,6 +85,7 @@ public class SysRoleController {
      */
     @Operation(summary = "删除角色")
     @Log("删除角色")
+    @PreAuthorize("hasAuthority('" + Perms.ROLE_DELETE + "')")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return roleService.removeById(id) ? R.ok() : R.fail("删除失败");

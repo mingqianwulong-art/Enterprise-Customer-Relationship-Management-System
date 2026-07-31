@@ -1,6 +1,7 @@
 package com.crm.system.controller;
 
 import com.crm.common.api.R;
+import com.crm.common.constant.Perms;
 import com.crm.system.annotation.Log;
 import com.crm.system.dto.UserPageDTO;
 import com.crm.system.entity.SysUser;
@@ -8,6 +9,7 @@ import com.crm.system.service.ISysUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -58,6 +60,7 @@ public class SysUserController {
      */
     @Operation(summary = "新增用户")
     @Log("新增用户")
+    @PreAuthorize("hasAuthority('" + Perms.USER_ADD + "')")
     @PostMapping
     public R add(@RequestBody SysUser user) {
         return userService.addUser(user) ? R.ok() : R.fail("新增失败");
@@ -68,6 +71,7 @@ public class SysUserController {
      */
     @Operation(summary = "修改用户")
     @Log("修改用户")
+    @PreAuthorize("hasAuthority('" + Perms.USER_EDIT + "')")
     @PutMapping
     public R update(@RequestBody SysUser user) {
         return userService.updateUser(user) ? R.ok() : R.fail("修改失败");
@@ -78,6 +82,7 @@ public class SysUserController {
      */
     @Operation(summary = "删除用户")
     @Log("删除用户")
+    @PreAuthorize("hasAuthority('" + Perms.USER_DELETE + "')")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return userService.deleteUser(id) ? R.ok() : R.fail("删除失败");
@@ -88,6 +93,7 @@ public class SysUserController {
      */
     @Operation(summary = "重置密码")
     @Log("重置密码")
+    @PreAuthorize("hasAuthority('" + Perms.USER_RESET + "')")
     @PutMapping("/resetPwd")
     public R resetPwd(@RequestParam Long userId, @RequestParam String password) {
         return userService.resetPassword(userId, password) ? R.ok() : R.fail("重置失败");
@@ -98,6 +104,7 @@ public class SysUserController {
      */
     @Operation(summary = "修改用户状态")
     @Log("修改用户状态")
+    @PreAuthorize("hasAuthority('" + Perms.USER_EDIT + "')")
     @PutMapping("/changeStatus")
     public R changeStatus(@RequestParam Long userId, @RequestParam Integer status) {
         return userService.changeStatus(userId, status) ? R.ok() : R.fail("修改失败");

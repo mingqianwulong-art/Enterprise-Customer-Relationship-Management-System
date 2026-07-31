@@ -70,4 +70,12 @@ public interface IOpportunityService extends IService<Opportunity> {
      * @return 漏斗统计数据
      */
     List<FunnelVO> getFunnelData();
+
+    /**
+     * 查询停滞预警商机（超过指定天数未推进阶段的进行中商机）
+     *
+     * @param days 停滞天数阈值
+     * @return 停滞商机列表
+     */
+    List<Opportunity> listStagnant(int days);
 }

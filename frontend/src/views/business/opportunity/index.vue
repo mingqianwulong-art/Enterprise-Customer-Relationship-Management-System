@@ -1,5 +1,19 @@
 <template>
   <div class="app-container">
+    <!-- 停滞预警提示 -->
+    <el-alert
+      v-if="stagnantCount > 0"
+      class="stagnant-alert"
+      type="warning"
+      show-icon
+      :closable="false"
+    >
+      <template #title>
+        发现 {{ stagnantCount }} 个停滞商机（超过15天未推进阶段），请及时跟进！
+        <el-button link type="primary" @click="showStagnantDialog = true">查看详情</el-button>
+      </template>
+    </el-alert>
+
     <el-card class="search-card">
       <el-form :model="queryParams" inline>
         <el-form-item label="商机名称">
@@ -133,6 +147,28 @@
         <el-button type="primary" :disabled="!nextStageOptions.length" @click="submitStage">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 停滞预警详情弹窗 -->
+    <el-dialog v-model="showStagnantDialog" title="停滞商机预警" width="800px">
+      <el-table :data="stagnantList" border max-height="400">
+        <el-table-column label="商机名称" prop="oppName" min-width="160" show-overflow-tooltip />
+        <el-table-column label="客户名称" prop="customerName" min-width="140" show-overflow-tooltip />
+        <el-table-column label="阶段" prop="stage" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag :type="stageTagType(row.stage)">{{ stageText(row.stage) }}</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="阶段变更时间" prop="stageChangeTime" min-width="160" />
+        <el-table-column label="预计金额" prop="estimatedAmount" width="120" align="right">
+          <template #default="{ row }">
+            ¥{{ Number(row.estimatedAmount || 0).toLocaleString() }}
+          </template>
+        </el-table-column>
+      </el-table>
+      <template #footer>
+        <el-button @click="showStagnantDialog = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -145,7 +181,8 @@ import {
   addOpportunity,
   updateOpportunity,
   deleteOpportunity,
-  changeOppStage
+  changeOppStage,
+  getStagnantOpportunities
 } from '@/api/business'
 
 const stageOptions = [
@@ -342,7 +379,24 @@ async function handleDelete(row: any) {
   }
 }
 
-onMounted(() => loadData())
+// 停滞预警
+const stagnantList = ref<any[]>([])
+const stagnantCount = computed(() => stagnantList.value.length)
+const showStagnantDialog = ref(false)
+
+async function loadStagnant() {
+  try {
+    const res: any = await getStagnantOpportunities(15)
+    stagnantList.value = res.data || []
+  } catch (e) {
+    // 忽略预警加载错误
+  }
+}
+
+onMounted(() => {
+  loadData()
+  loadStagnant()
+})
 </script>
 
 <style scoped>
@@ -350,6 +404,9 @@ onMounted(() => loadData())
   padding: 20px;
 }
 .search-card {
+  margin-bottom: 16px;
+}
+.stagnant-alert {
   margin-bottom: 16px;
 }
 .card-header {

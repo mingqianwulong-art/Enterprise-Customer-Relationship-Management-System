@@ -94,4 +94,13 @@ public class OpportunityController {
     public R funnel() {
         return R.ok(opportunityService.getFunnelData());
     }
+
+    /**
+     * 停滞预警商机列表（超过指定天数未推进阶段的进行中商机）
+     */
+    @Operation(summary = "停滞预警商机列表")
+    @GetMapping("/stagnant")
+    public R stagnant(@RequestParam(defaultValue = "15") Integer days) {
+        return R.ok(opportunityService.listStagnant(days));
+    }
 }

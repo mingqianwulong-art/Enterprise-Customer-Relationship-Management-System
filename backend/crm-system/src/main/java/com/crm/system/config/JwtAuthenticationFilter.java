@@ -1,6 +1,7 @@
 package com.crm.system.config;
 
 import com.crm.common.constant.Constants;
+import com.crm.common.security.LoginUser;
 import com.crm.common.utils.JwtUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -10,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -18,7 +20,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * JWT 认证过滤器
@@ -52,13 +56,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 // 解析 token 获取 userId
                 Long userId = jwtUtils.getUserIdFromToken(token);
                 if (userId != null) {
-                    // 从 Redis 查询登录状态
+                    // 从 Redis 查询登录状态（value 为 LoginUser 的 JSON）
                     String redisKey = Constants.LOGIN_TOKEN_KEY + userId;
                     String redisValue = redisTemplate.opsForValue().get(redisKey);
                     if (StringUtils.hasText(redisValue)) {
+                        // 反序列化为 LoginUser 作为 Principal
+                        LoginUser loginUser = objectMapper.readValue(redisValue, LoginUser.class);
+                        if (loginUser.getUserId() == null) {
+                            loginUser.setUserId(userId);
+                        }
+                        // 由权限标识构造 authorities，供 @PreAuthorize(hasAuthority) 校验
+                        List<SimpleGrantedAuthority> authorities = loginUser.getPermissions() == null
+                                ? Collections.emptyList()
+                                : loginUser.getPermissions().stream()
+                                        .map(SimpleGrantedAuthority::new)
+                                        .collect(Collectors.toList());
                         // 写入 SecurityContext
                         UsernamePasswordAuthenticationToken authentication =
-                                new UsernamePasswordAuthenticationToken(userId, null, Collections.emptyList());
+                                new UsernamePasswordAuthenticationToken(loginUser, null, authorities);
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     }
                 }
@@ -66,7 +81,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             // 认证失败返回 401 JSON
-            returnUnauthorized(response, "认证失败，请重新登录");
+            e.printStackTrace();
+            returnUnauthorized(response, "认证失败，请重新登录: " + e.getClass().getSimpleName() + ": " + e.getMessage());
         }
     }
 

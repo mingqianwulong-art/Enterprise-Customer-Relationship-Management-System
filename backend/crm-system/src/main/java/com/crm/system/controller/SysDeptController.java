@@ -1,12 +1,14 @@
 package com.crm.system.controller;
 
 import com.crm.common.api.R;
+import com.crm.common.constant.Perms;
 import com.crm.system.annotation.Log;
 import com.crm.system.entity.SysDept;
 import com.crm.system.service.ISysDeptService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,6 +54,7 @@ public class SysDeptController {
      */
     @Operation(summary = "新增部门")
     @Log("新增部门")
+    @PreAuthorize("hasAuthority('" + Perms.DEPT_ADD + "')")
     @PostMapping
     public R add(@RequestBody SysDept dept) {
         return deptService.save(dept) ? R.ok() : R.fail("新增失败");
@@ -62,6 +65,7 @@ public class SysDeptController {
      */
     @Operation(summary = "修改部门")
     @Log("修改部门")
+    @PreAuthorize("hasAuthority('" + Perms.DEPT_EDIT + "')")
     @PutMapping
     public R update(@RequestBody SysDept dept) {
         return deptService.updateById(dept) ? R.ok() : R.fail("修改失败");
@@ -72,6 +76,7 @@ public class SysDeptController {
      */
     @Operation(summary = "删除部门")
     @Log("删除部门")
+    @PreAuthorize("hasAuthority('" + Perms.DEPT_DELETE + "')")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return deptService.removeById(id) ? R.ok() : R.fail("删除失败");

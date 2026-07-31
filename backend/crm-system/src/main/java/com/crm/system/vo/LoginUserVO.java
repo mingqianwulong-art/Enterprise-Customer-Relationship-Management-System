@@ -25,4 +25,7 @@ public class LoginUserVO {
 
     /** 菜单树 */
     private List<MenuTreeVO> menus;
+
+    /** 数据范围（1本人 2本部门 3本部门及下 4全部） */
+    private Integer dataScope;
 }

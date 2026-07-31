@@ -10,10 +10,13 @@ import com.crm.business.service.IOpportunityService;
 import com.crm.business.vo.FunnelVO;
 import com.crm.business.vo.OpportunityPageDTO;
 import com.crm.common.exception.BusinessException;
+import com.crm.system.service.DataPermissionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +32,9 @@ public class OpportunityServiceImpl extends ServiceImpl<OpportunityMapper, Oppor
 
     /** 商机阶段名称（1需求确认 2方案报价 3商务谈判 4合同签订 5已赢单 6已输单） */
     private static final String[] STAGE_NAMES = {null, "需求确认", "方案报价", "商务谈判", "合同签订", "已赢单", "已输单"};
+
+    @Autowired
+    private DataPermissionService dataPermissionService;
 
     /**
      * 分页查询商机
@@ -46,6 +52,11 @@ public class OpportunityServiceImpl extends ServiceImpl<OpportunityMapper, Oppor
                 .eq(dto.getOwnerId() != null,
                         Opportunity::getOwnerId, dto.getOwnerId())
                 .orderByDesc(Opportunity::getCreateTime);
+        // 数据权限过滤
+        List<Long> visibleOwnerIds = dataPermissionService.getVisibleOwnerIds();
+        if (visibleOwnerIds != null) {
+            wrapper.in(Opportunity::getOwnerId, visibleOwnerIds);
+        }
         return baseMapper.selectPage(page, wrapper);
     }
 
@@ -66,16 +77,24 @@ public class OpportunityServiceImpl extends ServiceImpl<OpportunityMapper, Oppor
      */
     @Override
     public boolean addOpportunity(Opportunity opp) {
+        opp.setStageChangeTime(LocalDateTime.now());
         return baseMapper.insert(opp) > 0;
     }
 
     /**
-     * 修改商机
+     * 修改商机（阶段变更时同步更新阶段变更时间）
      */
     @Override
     public boolean updateOpportunity(Opportunity opp) {
         if (opp.getId() == null) {
             throw new BusinessException("商机ID不能为空");
+        }
+        // 阶段变更时更新阶段变更时间
+        if (opp.getStage() != null) {
+            Opportunity existing = baseMapper.selectById(opp.getId());
+            if (existing != null && !opp.getStage().equals(existing.getStage())) {
+                opp.setStageChangeTime(LocalDateTime.now());
+            }
         }
         return baseMapper.updateById(opp) > 0;
     }
@@ -100,6 +119,7 @@ public class OpportunityServiceImpl extends ServiceImpl<OpportunityMapper, Oppor
         Opportunity update = new Opportunity();
         update.setId(id);
         update.setStage(stage);
+        update.setStageChangeTime(LocalDateTime.now());
         return baseMapper.updateById(update) > 0;
     }
 
@@ -143,5 +163,20 @@ public class OpportunityServiceImpl extends ServiceImpl<OpportunityMapper, Oppor
                     return vo;
                 })
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 查询停滞预警商机
+     * 进行中（阶段1-4）且阶段变更时间超过指定天数的商机
+     */
+    @Override
+    public List<Opportunity> listStagnant(int days) {
+        LocalDateTime deadline = LocalDateTime.now().minusDays(days);
+        LambdaQueryWrapper<Opportunity> wrapper = new LambdaQueryWrapper<Opportunity>()
+                // 进行中的商机阶段：1需求确认 2方案报价 3商务谈判 4合同签订
+                .in(Opportunity::getStage, 1, 2, 3, 4)
+                .lt(Opportunity::getStageChangeTime, deadline)
+                .orderByAsc(Opportunity::getStageChangeTime);
+        return baseMapper.selectList(wrapper);
     }
 }

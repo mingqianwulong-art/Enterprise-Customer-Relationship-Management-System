@@ -7,12 +7,16 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
 import router from './router'
 import pinia from './stores'
+import { permission } from './directive/permission'
 
 const app = createApp(App)
 
 app.use(ElementPlus, { locale: zhCn })
 app.use(router)
 app.use(pinia)
+
+// 注册按钮级权限指令
+app.directive('permission', permission)
 
 // 注册所有 Element Plus 图标
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {

@@ -37,6 +37,11 @@ export function getFunnelData() {
   return request({ url: '/business/opportunity/funnel', method: 'get' })
 }
 
+/** 停滞预警商机列表 */
+export function getStagnantOpportunities(days = 15) {
+  return request({ url: '/business/opportunity/stagnant', method: 'get', params: { days } })
+}
+
 // ==================== 合同管理 ====================
 
 /** 分页查询合同 */

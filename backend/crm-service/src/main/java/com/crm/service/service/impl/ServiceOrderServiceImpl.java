@@ -9,10 +9,13 @@ import com.crm.service.entity.ServiceOrder;
 import com.crm.service.mapper.ServiceOrderMapper;
 import com.crm.service.service.IServiceOrderService;
 import com.crm.service.vo.OrderPageDTO;
+import com.crm.system.service.DataPermissionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * 工单服务实现
@@ -26,6 +29,9 @@ public class ServiceOrderServiceImpl extends ServiceImpl<ServiceOrderMapper, Ser
     private static final int STATUS_DONE = 3;
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+    @Autowired
+    private DataPermissionService dataPermissionService;
 
     /**
      * 分页查询工单
@@ -45,6 +51,11 @@ public class ServiceOrderServiceImpl extends ServiceImpl<ServiceOrderMapper, Ser
                 .eq(dto.getPriority() != null,
                         ServiceOrder::getPriority, dto.getPriority())
                 .orderByDesc(ServiceOrder::getCreateTime);
+        // 数据权限过滤（按受理人 assigneeId）
+        List<Long> visibleOwnerIds = dataPermissionService.getVisibleOwnerIds();
+        if (visibleOwnerIds != null) {
+            wrapper.in(ServiceOrder::getAssigneeId, visibleOwnerIds);
+        }
         return baseMapper.selectPage(page, wrapper);
     }
 

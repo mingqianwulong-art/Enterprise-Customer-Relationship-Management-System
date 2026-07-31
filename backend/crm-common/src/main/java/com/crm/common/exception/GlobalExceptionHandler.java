@@ -4,6 +4,7 @@ import com.crm.common.api.R;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -77,6 +78,18 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining(", "));
         log.error("参数绑定异常: {}", msg);
         return R.failed(400, msg);
+    }
+
+    /**
+     * 权限不足异常（@PreAuthorize 校验失败）
+     *
+     * @param e 权限不足异常
+     * @return 统一返回结果
+     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public R<Void> handleAccessDeniedException(AccessDeniedException e) {
+        log.warn("权限不足: {}", e.getMessage());
+        return R.failed(403, "权限不足，无法执行此操作");
     }
 
     /**

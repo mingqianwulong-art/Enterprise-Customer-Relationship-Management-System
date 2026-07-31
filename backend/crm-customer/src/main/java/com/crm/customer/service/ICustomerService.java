@@ -77,4 +77,13 @@ public interface ICustomerService extends IService<Customer> {
      * @return 分页结果
      */
     IPage<Customer> poolPage(CustomerPageDTO dto);
+
+    /**
+     * 公海池自动回收
+     * 将超过指定天数未跟进的已分配客户自动转入公海池
+     *
+     * @param days 未跟进天数阈值
+     * @return 回收客户数量
+     */
+    int autoRecycleToPool(int days);
 }

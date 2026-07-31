@@ -24,3 +24,28 @@ export function logout() {
     method: 'post'
   })
 }
+
+/** 发送短信验证码 */
+export function sendSmsCode(phone: string) {
+  return request({
+    url: '/auth/sms/send',
+    method: 'post',
+    data: { phone }
+  })
+}
+
+/** 用户注册 */
+export function register(data: {
+  username: string
+  password: string
+  phone: string
+  email?: string
+  code: string
+}) {
+  return request({
+    url: '/auth/register',
+    method: 'post',
+    data
+  })
+}
+

@@ -1,12 +1,14 @@
 package com.crm.system.controller;
 
 import com.crm.common.api.R;
+import com.crm.common.constant.Perms;
 import com.crm.system.annotation.Log;
 import com.crm.system.entity.SysMenu;
 import com.crm.system.service.ISysMenuService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,6 +54,7 @@ public class SysMenuController {
      */
     @Operation(summary = "新增菜单")
     @Log("新增菜单")
+    @PreAuthorize("hasAuthority('" + Perms.MENU_ADD + "')")
     @PostMapping
     public R add(@RequestBody SysMenu menu) {
         return menuService.save(menu) ? R.ok() : R.fail("新增失败");
@@ -62,6 +65,7 @@ public class SysMenuController {
      */
     @Operation(summary = "修改菜单")
     @Log("修改菜单")
+    @PreAuthorize("hasAuthority('" + Perms.MENU_EDIT + "')")
     @PutMapping
     public R update(@RequestBody SysMenu menu) {
         return menuService.updateById(menu) ? R.ok() : R.fail("修改失败");
@@ -72,6 +76,7 @@ public class SysMenuController {
      */
     @Operation(summary = "删除菜单")
     @Log("删除菜单")
+    @PreAuthorize("hasAuthority('" + Perms.MENU_DELETE + "')")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return menuService.removeById(id) ? R.ok() : R.fail("删除失败");

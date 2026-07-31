@@ -1,6 +1,8 @@
 package com.crm.system.aspect;
 
+import com.crm.common.security.LoginUser;
 import com.crm.system.annotation.Log;
+import com.crm.system.dto.LoginDTO;
 import com.crm.system.entity.SysLog;
 import com.crm.system.service.ISysLogService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -74,11 +76,22 @@ public class LogAspect {
         // 当前登录用户
         try {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication != null && authentication.getPrincipal() instanceof Long) {
-                sysLog.setUserId((Long) authentication.getPrincipal());
+            if (authentication != null && authentication.getPrincipal() instanceof LoginUser) {
+                LoginUser loginUser = (LoginUser) authentication.getPrincipal();
+                sysLog.setUserId(loginUser.getUserId());
+                sysLog.setUsername(loginUser.getUsername());
             }
         } catch (Exception e) {
             log.warn("获取当前用户信息失败：{}", e.getMessage());
+        }
+        // 登录场景：SecurityContext 尚未建立，从登录参数提取 username
+        if (sysLog.getUsername() == null || sysLog.getUsername().isEmpty()) {
+            for (Object arg : joinPoint.getArgs()) {
+                if (arg instanceof LoginDTO) {
+                    sysLog.setUsername(((LoginDTO) arg).getUsername());
+                    break;
+                }
+            }
         }
 
         Object result = null;

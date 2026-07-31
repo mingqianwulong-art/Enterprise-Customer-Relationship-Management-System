@@ -1,6 +1,7 @@
 package com.crm.customer.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -15,6 +16,7 @@ import com.crm.customer.mapper.CustomerMapper;
 import com.crm.customer.mapper.CustomerTagMapper;
 import com.crm.customer.mapper.FollowRecordMapper;
 import com.crm.customer.mapper.TagMapper;
+import com.crm.system.service.DataPermissionService;
 import com.crm.customer.service.ICustomerService;
 import com.crm.customer.vo.CustomerPageDTO;
 import com.crm.customer.vo.CustomerVO;
@@ -23,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +49,9 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
     @Autowired
     private FollowRecordMapper followRecordMapper;
 
+    @Autowired
+    private DataPermissionService dataPermissionService;
+
     /**
      * 分页查询客户
      */
@@ -64,6 +70,11 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
                 .eq(dto.getLevel() != null,
                         Customer::getCustomerLevel, dto.getLevel())
                 .orderByDesc(Customer::getCreateTime);
+        // 应用数据权限：按当前用户 dataScope 过滤可见的 owner_id
+        List<Long> visibleOwnerIds = dataPermissionService.getVisibleOwnerIds();
+        if (visibleOwnerIds != null) {
+            wrapper.in(Customer::getOwnerId, visibleOwnerIds);
+        }
         return baseMapper.selectPage(page, wrapper);
     }
 
@@ -75,6 +86,15 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         Customer customer = baseMapper.selectById(id);
         if (customer == null) {
             throw new BusinessException("客户不存在");
+        }
+        // 非公海客户需校验数据权限（公海客户允许所有人查看以便领取）
+        Integer inPool = customer.getInPool();
+        if (inPool == null || inPool == 0) {
+            List<Long> visibleOwnerIds = dataPermissionService.getVisibleOwnerIds();
+            if (visibleOwnerIds != null
+                    && (customer.getOwnerId() == null || !visibleOwnerIds.contains(customer.getOwnerId()))) {
+                throw new BusinessException("无权查看该客户");
+            }
         }
 
         CustomerVO vo = new CustomerVO();
@@ -215,5 +235,38 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
                         Customer::getIndustry, dto.getIndustry())
                 .orderByDesc(Customer::getCreateTime);
         return baseMapper.selectPage(page, wrapper);
+    }
+
+    /**
+     * 公海池自动回收
+     * 查询超过指定天数未跟进的已分配客户，批量转入公海池
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int autoRecycleToPool(int days) {
+        LocalDateTime deadline = LocalDateTime.now().minusDays(days);
+        // 查询需要回收的客户：非公海、有负责人、超过阈值未跟进
+        // last_follow_time 为空时按 create_time 判断（从未跟进的客户）
+        LambdaQueryWrapper<Customer> wrapper = new LambdaQueryWrapper<Customer>()
+                .eq(Customer::getInPool, 0)
+                .isNotNull(Customer::getOwnerId)
+                .and(w -> w
+                        .lt(Customer::getLastFollowTime, deadline)
+                        .or()
+                        .nested(n -> n.isNull(Customer::getLastFollowTime)
+                                .lt(Customer::getCreateTime, deadline)));
+        List<Customer> customers = baseMapper.selectList(wrapper);
+        if (customers.isEmpty()) {
+            return 0;
+        }
+        // 批量转入公海：清空负责人、标记为公海
+        List<Long> ids = customers.stream()
+                .map(Customer::getId)
+                .collect(Collectors.toList());
+        LambdaUpdateWrapper<Customer> updateWrapper = new LambdaUpdateWrapper<Customer>()
+                .in(Customer::getId, ids)
+                .set(Customer::getInPool, 1)
+                .set(Customer::getOwnerId, null);
+        return baseMapper.update(null, updateWrapper);
     }
 }

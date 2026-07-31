@@ -9,6 +9,8 @@ import com.crm.service.entity.ServiceRecord;
 import com.crm.service.mapper.ServiceRecordMapper;
 import com.crm.service.service.IServiceRecordService;
 import com.crm.service.vo.RecordPageDTO;
+import com.crm.system.service.DataPermissionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +22,9 @@ import java.util.List;
  */
 @Service
 public class ServiceRecordServiceImpl extends ServiceImpl<ServiceRecordMapper, ServiceRecord> implements IServiceRecordService {
+
+    @Autowired
+    private DataPermissionService dataPermissionService;
 
     /**
      * 分页查询售后记录
@@ -35,6 +40,11 @@ public class ServiceRecordServiceImpl extends ServiceImpl<ServiceRecordMapper, S
                 .eq(dto.getOrderId() != null,
                         ServiceRecord::getOrderId, dto.getOrderId())
                 .orderByDesc(ServiceRecord::getCreateTime);
+        // 数据权限过滤（按处理人 handlerId）
+        List<Long> visibleOwnerIds = dataPermissionService.getVisibleOwnerIds();
+        if (visibleOwnerIds != null) {
+            wrapper.in(ServiceRecord::getHandlerId, visibleOwnerIds);
+        }
         return baseMapper.selectPage(page, wrapper);
     }
 

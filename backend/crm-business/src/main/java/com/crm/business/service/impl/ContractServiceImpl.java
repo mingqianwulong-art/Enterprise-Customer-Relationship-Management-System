@@ -9,10 +9,13 @@ import com.crm.business.mapper.ContractMapper;
 import com.crm.business.service.IContractService;
 import com.crm.business.vo.ContractPageDTO;
 import com.crm.common.exception.BusinessException;
+import com.crm.system.service.DataPermissionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 /**
  * 合同服务实现
@@ -23,6 +26,9 @@ import java.time.format.DateTimeFormatter;
 public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> implements IContractService {
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+    @Autowired
+    private DataPermissionService dataPermissionService;
 
     /**
      * 分页查询合同
@@ -38,6 +44,11 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
                 .eq(dto.getStatus() != null,
                         Contract::getStatus, dto.getStatus())
                 .orderByDesc(Contract::getCreateTime);
+        // 数据权限过滤
+        List<Long> visibleOwnerIds = dataPermissionService.getVisibleOwnerIds();
+        if (visibleOwnerIds != null) {
+            wrapper.in(Contract::getOwnerId, visibleOwnerIds);
+        }
         return baseMapper.selectPage(page, wrapper);
     }
 

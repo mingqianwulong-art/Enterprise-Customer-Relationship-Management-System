@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * 商机实体类
@@ -48,6 +49,10 @@ public class Opportunity extends BaseEntity {
     /** 商机阶段（1需求确认 2方案报价 3商务谈判 4合同签订 5已赢单 6已输单） */
     @TableField("stage")
     private Integer stage;
+
+    /** 阶段最后变更时间（用于停滞预警检测） */
+    @TableField("stage_change_time")
+    private LocalDateTime stageChangeTime;
 
     /** 成交概率 */
     @TableField("probability")
