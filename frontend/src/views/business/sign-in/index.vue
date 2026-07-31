@@ -74,7 +74,7 @@
         <el-timeline-item
           v-for="record in historyList"
           :key="record.id"
-          :timestamp="record.signTime?.replace('T', ' ').substring(0, 16)"
+          :timestamp="record.signTime"
           :type="signTimelineType(record.signType)"
         >
           <div class="timeline-item">

@@ -325,7 +325,7 @@ async function handleMarkAllRead() {
 /** 格式化时间 */
 function formatTime(time: string) {
   if (!time) return ''
-  return time.replace('T', ' ').substring(0, 16)
+  return time
 }
 
 onMounted(() => {

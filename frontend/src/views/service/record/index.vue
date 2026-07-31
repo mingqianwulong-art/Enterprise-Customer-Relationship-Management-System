@@ -94,6 +94,7 @@
           <el-date-picker
             v-model="form.handleTime"
             type="datetime"
+            format="YYYY年MM月DD日 HH:mm:ss"
             value-format="YYYY-MM-DD HH:mm:ss"
             placeholder="请选择处理时间"
             style="width: 100%"

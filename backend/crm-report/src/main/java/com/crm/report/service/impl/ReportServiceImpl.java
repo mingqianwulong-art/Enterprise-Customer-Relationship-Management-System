@@ -134,7 +134,7 @@ public class ReportServiceImpl implements IReportService {
 
         // 预测下一个月份
         YearMonth nextMonth = YearMonth.now().plusMonths(1);
-        vo.setMonth(nextMonth.format(DateTimeFormatter.ofPattern("yyyy-MM")));
+        vo.setMonth(nextMonth.format(DateTimeFormatter.ofPattern("yyyy年MM月")));
         vo.setHistory(history);
 
         if (history.isEmpty()) {

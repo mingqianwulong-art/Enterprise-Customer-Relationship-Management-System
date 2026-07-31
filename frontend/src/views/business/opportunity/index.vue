@@ -104,6 +104,7 @@
           <el-date-picker
             v-model="form.expectedCloseDate"
             type="date"
+            format="YYYY年MM月DD日"
             value-format="YYYY-MM-DD"
             placeholder="请选择日期"
             style="width: 100%"

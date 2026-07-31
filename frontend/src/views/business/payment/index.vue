@@ -133,7 +133,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="计划回款日期" prop="planDate">
-          <el-date-picker v-model="form.planDate" type="date" value-format="YYYY-MM-DD" placeholder="请选择计划回款日期" style="width: 100%" />
+          <el-date-picker v-model="form.planDate" type="date" format="YYYY年MM月DD日" value-format="YYYY-MM-DD" placeholder="请选择计划回款日期" style="width: 100%" />
         </el-form-item>
         <el-form-item label="计划回款金额" prop="planAmount">
           <el-input-number v-model="form.planAmount" :min="0" :precision="2" controls-position="right" style="width: 100%" />
@@ -161,7 +161,7 @@
           <el-input-number v-model="confirmForm.actualAmount" :min="0" :precision="2" controls-position="right" style="width: 100%" />
         </el-form-item>
         <el-form-item label="实际回款日期" prop="actualDate">
-          <el-date-picker v-model="confirmForm.actualDate" type="date" value-format="YYYY-MM-DD" placeholder="请选择实际回款日期" style="width: 100%" />
+          <el-date-picker v-model="confirmForm.actualDate" type="date" format="YYYY年MM月DD日" value-format="YYYY-MM-DD" placeholder="请选择实际回款日期" style="width: 100%" />
         </el-form-item>
       </el-form>
       <template #footer>

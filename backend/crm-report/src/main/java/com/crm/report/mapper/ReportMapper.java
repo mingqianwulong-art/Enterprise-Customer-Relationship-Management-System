@@ -78,7 +78,7 @@ public interface ReportMapper {
     // ==================== 趋势数据 ====================
 
     /** 按月份统计趋势数据 */
-    @Select("SELECT DATE_FORMAT(t.create_time, '%Y-%m') AS month, " +
+    @Select("SELECT DATE_FORMAT(t.create_time, '%Y年%m月') AS month, " +
             "SUM(t.new_customers) AS newCustomers, " +
             "SUM(t.new_opportunities) AS newOpportunities, " +
             "SUM(t.new_contracts) AS newContracts, " +

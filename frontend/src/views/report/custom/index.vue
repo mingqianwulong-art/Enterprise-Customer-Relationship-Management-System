@@ -13,6 +13,7 @@
             v-model="queryForm.startDate"
             type="date"
             placeholder="选择开始日期"
+            format="YYYY年MM月DD日"
             value-format="YYYY-MM-DD"
             style="width: 160px"
           />
@@ -22,6 +23,7 @@
             v-model="queryForm.endDate"
             type="date"
             placeholder="选择结束日期"
+            format="YYYY年MM月DD日"
             value-format="YYYY-MM-DD"
             style="width: 160px"
           />

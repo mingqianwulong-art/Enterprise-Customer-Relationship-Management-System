@@ -62,7 +62,7 @@
         <el-table-column prop="ownerName" label="负责人" width="120" />
         <el-table-column label="最后跟进时间" width="180">
           <template #default="{ row }">
-            {{ row.lastFollowTime ? row.lastFollowTime.replace('T', ' ') : '从未跟进' }}
+            {{ row.lastFollowTime ? row.lastFollowTime : '从未跟进' }}
           </template>
         </el-table-column>
         <el-table-column prop="daysSinceLastFollow" label="未跟进天数" width="120" sortable>
