@@ -15,7 +15,12 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 工单服务实现
@@ -155,5 +160,48 @@ public class ServiceOrderServiceImpl extends ServiceImpl<ServiceOrderMapper, Ser
         update.setSatisfaction(satisfaction);
         update.setSatisfactionComment(satisfactionComment);
         return baseMapper.updateById(update) > 0;
+    }
+
+    /** 工单类型名称映射 */
+    private static final Map<Integer, String> TYPE_NAMES = new HashMap<>();
+    static {
+        TYPE_NAMES.put(1, "产品咨询");
+        TYPE_NAMES.put(2, "售后维修");
+        TYPE_NAMES.put(3, "退换货");
+        TYPE_NAMES.put(4, "安装调试");
+        TYPE_NAMES.put(5, "投诉建议");
+        TYPE_NAMES.put(6, "其他");
+    }
+
+    /**
+     * 问题反向溯源：高频问题类型统计
+     */
+    @Override
+    public List<Map<String, Object>> hotProblemStats(int days) {
+        // 查询指定天数内的工单
+        LocalDateTime startTime = LocalDateTime.now().minusDays(days);
+        LambdaQueryWrapper<ServiceOrder> wrapper = new LambdaQueryWrapper<ServiceOrder>()
+                .ge(ServiceOrder::getCreateTime, startTime)
+                .select(ServiceOrder::getType);
+        List<ServiceOrder> orders = baseMapper.selectList(wrapper);
+
+        // 按类型分组统计
+        Map<Integer, Long> typeCountMap = orders.stream()
+                .filter(o -> o.getType() != null)
+                .collect(Collectors.groupingBy(ServiceOrder::getType, Collectors.counting()));
+
+        long total = orders.size();
+        List<Map<String, Object>> result = new ArrayList<>();
+        typeCountMap.forEach((type, count) -> {
+            Map<String, Object> item = new HashMap<>();
+            item.put("type", type);
+            item.put("typeName", TYPE_NAMES.getOrDefault(type, "未知"));
+            item.put("count", count);
+            item.put("percentage", total > 0 ? String.format("%.1f%%", count * 100.0 / total) : "0.0%");
+            result.add(item);
+        });
+        // 按次数降序
+        result.sort((a, b) -> Long.compare((Long) b.get("count"), (Long) a.get("count")));
+        return result;
     }
 }

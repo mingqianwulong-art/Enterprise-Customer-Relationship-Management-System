@@ -107,4 +107,17 @@ public class ServiceOrderController {
                              @RequestParam(required = false) String satisfactionComment) {
         return orderService.addSatisfaction(id, satisfaction, satisfactionComment) ? R.ok("评价成功") : R.fail("评价失败");
     }
+
+    /**
+     * 问题反向溯源：高频问题类型统计
+     * <p>
+     * 统计指定时间范围内各工单类型出现次数，按频次降序返回，用于推送至产品部门改进
+     *
+     * @param days 统计天数（默认30天）
+     */
+    @Operation(summary = "问题反向溯源-高频问题统计")
+    @GetMapping("/hot-problems")
+    public R hotProblemStats(@RequestParam(defaultValue = "30") int days) {
+        return R.ok(orderService.hotProblemStats(days));
+    }
 }
