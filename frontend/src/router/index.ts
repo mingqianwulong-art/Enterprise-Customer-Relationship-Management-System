@@ -144,6 +144,12 @@ const router = createRouter({
           component: () => import('@/views/business/funnel/index.vue'),
           meta: { title: '销售漏斗', icon: 'TrendCharts' }
         },
+        {
+          path: 'business/sign-in',
+          name: 'BizSignIn',
+          component: () => import('@/views/business/sign-in/index.vue'),
+          meta: { title: '外勤签到', icon: 'Location' }
+        },
         // 售后服务
         {
           path: 'service/order',
@@ -169,6 +175,12 @@ const router = createRouter({
           name: 'ReportCustom',
           component: () => import('@/views/report/custom/index.vue'),
           meta: { title: '自定义报表', icon: 'Histogram' }
+        },
+        {
+          path: 'report/forecast',
+          name: 'ReportForecast',
+          component: () => import('@/views/report/forecast/index.vue'),
+          meta: { title: '预测分析', icon: 'MagicStick' }
         }
       ]
     }

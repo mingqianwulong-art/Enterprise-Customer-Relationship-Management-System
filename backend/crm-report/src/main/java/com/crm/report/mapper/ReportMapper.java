@@ -175,4 +175,40 @@ public interface ReportMapper {
             "<if test='dto.ownerId != null'>AND u.id = #{dto.ownerId}</if> " +
             "GROUP BY u.id, u.real_name ORDER BY contractAmount DESC</script>")
     List<java.util.Map<String, Object>> getCustomSalesReport(@Param("dto") com.crm.report.dto.ReportQueryDTO dto);
+
+    // ==================== 预测分析 ====================
+
+    /**
+     * 查询高流失风险客户（非公海、未删除、最后跟进时间早于阈值）
+     * @param thresholdDays 阈值天数（超过此天数未跟进视为有流失风险）
+     */
+    @Select("SELECT c.id AS customerId, c.name AS customerName, c.customer_level AS customerLevel, " +
+            "c.owner_id AS ownerId, u.real_name AS ownerName, " +
+            "c.last_follow_time AS lastFollowTime, " +
+            "c.total_amount AS totalAmount, " +
+            "DATEDIFF(NOW(), IFNULL(c.last_follow_time, c.create_time)) AS daysSinceLastFollow " +
+            "FROM cus_customer c " +
+            "LEFT JOIN sys_user u ON u.id = c.owner_id AND u.deleted = 0 " +
+            "WHERE c.deleted = 0 AND c.in_pool = 0 " +
+            "AND (c.last_follow_time IS NULL OR c.last_follow_time &lt; DATE_SUB(NOW(), INTERVAL #{thresholdDays} DAY)) " +
+            "ORDER BY daysSinceLastFollow ASC")
+    List<com.crm.report.vo.ChurnRiskVO> getChurnRiskCustomers(@Param("thresholdDays") int thresholdDays);
+
+    /**
+     * 查询客户负责人ID
+     */
+    @Select("SELECT owner_id FROM cus_customer WHERE id = #{customerId} AND deleted = 0")
+    Long getCustomerOwnerId(@Param("customerId") Long customerId);
+
+    /**
+     * 插入挽留提醒消息到 sys_message 表
+     */
+    @org.apache.ibatis.annotations.Insert(
+            "INSERT INTO sys_message(user_id, title, content, type, ref_id, ref_type, is_read, create_time) " +
+            "VALUES(#{userId}, #{title}, #{content}, 3, #{refId}, #{refType}, 0, NOW())")
+    int insertMessage(@Param("userId") Long userId,
+                      @Param("title") String title,
+                      @Param("content") String content,
+                      @Param("refId") Long refId,
+                      @Param("refType") String refType);
 }

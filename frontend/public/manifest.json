@@ -1,0 +1,17 @@
+{
+  "name": "CRM 企业客户关系管理系统",
+  "short_name": "CRM系统",
+  "description": "面向温州本地企业的一体化 CRM 系统，覆盖市场获客、客户管理、商机跟进、售后服务全链路",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#409EFF",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

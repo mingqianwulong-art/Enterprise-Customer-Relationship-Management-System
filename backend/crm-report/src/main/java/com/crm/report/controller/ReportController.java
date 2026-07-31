@@ -70,4 +70,49 @@ public class ReportController {
     public R<List<Map<String, Object>>> getCustomSalesReport(ReportQueryDTO dto) {
         return R.ok(reportService.getCustomSalesReport(dto));
     }
+
+    // ==================== 预测分析（M5-03） ====================
+
+    /**
+     * 销售趋势预测
+     * <p>
+     * 基于历史数据线性回归预测未来销售趋势
+     *
+     * @param forecastMonths 预测未来月数（默认1）
+     * @param historyMonths  参考历史月数（默认6）
+     */
+    @Operation(summary = "销售趋势预测")
+    @GetMapping("/forecast/sales")
+    public R<ForecastVO> salesForecast(
+            @RequestParam(defaultValue = "1") int forecastMonths,
+            @RequestParam(defaultValue = "6") int historyMonths) {
+        return R.ok(reportService.salesForecast(forecastMonths, historyMonths));
+    }
+
+    /**
+     * 高流失风险客户识别
+     * <p>
+     * 识别超过阈值天数未跟进的客户，按风险等级排序
+     *
+     * @param thresholdDays 阈值天数（默认60天）
+     */
+    @Operation(summary = "高流失风险客户识别")
+    @GetMapping("/forecast/churn-risk")
+    public R<List<ChurnRiskVO>> getChurnRiskCustomers(
+            @RequestParam(defaultValue = "60") int thresholdDays) {
+        return R.ok(reportService.getChurnRiskCustomers(thresholdDays));
+    }
+
+    /**
+     * 挽留动作触发
+     * <p>
+     * 对高流失风险客户触发挽留动作，向负责人发送提醒消息
+     *
+     * @param customerId 客户ID
+     */
+    @Operation(summary = "挽留动作触发-发送提醒")
+    @PostMapping("/forecast/retain/{customerId}")
+    public R triggerRetention(@PathVariable Long customerId) {
+        return reportService.triggerRetention(customerId) ? R.ok("挽留提醒已发送至负责人") : R.fail("触发失败，客户不存在或无负责人");
+    }
 }

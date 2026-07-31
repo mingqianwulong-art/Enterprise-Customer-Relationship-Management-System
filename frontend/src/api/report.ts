@@ -43,3 +43,20 @@ export function getCustomCustomerReport(params: any) {
 export function getCustomSalesReport(params: any) {
   return request({ url: '/report/custom/sales', method: 'get', params })
 }
+
+// ==================== 预测分析 ====================
+
+/** 销售趋势预测 */
+export function getSalesForecast(forecastMonths: number = 1, historyMonths: number = 6) {
+  return request({ url: '/report/forecast/sales', method: 'get', params: { forecastMonths, historyMonths } })
+}
+
+/** 高流失风险客户识别 */
+export function getChurnRiskCustomers(thresholdDays: number = 60) {
+  return request({ url: '/report/forecast/churn-risk', method: 'get', params: { thresholdDays } })
+}
+
+/** 挽留动作触发 */
+export function triggerRetention(customerId: number) {
+  return request({ url: `/report/forecast/retain/${customerId}`, method: 'post' })
+}

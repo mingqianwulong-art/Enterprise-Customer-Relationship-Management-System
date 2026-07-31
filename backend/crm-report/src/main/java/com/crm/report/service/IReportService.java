@@ -51,4 +51,33 @@ public interface IReportService {
      * 自定义销售报表
      */
     List<Map<String, Object>> getCustomSalesReport(ReportQueryDTO dto);
+
+    /**
+     * 销售趋势预测
+     * <p>
+     * 基于历史数据线性回归预测未来 N 个月的销售趋势
+     *
+     * @param forecastMonths 预测未来月数
+     * @param historyMonths  参考历史月数
+     */
+    ForecastVO salesForecast(int forecastMonths, int historyMonths);
+
+    /**
+     * 高流失风险客户识别
+     * <p>
+     * 识别超过阈值天数未跟进的客户，按风险等级排序
+     *
+     * @param thresholdDays 阈值天数（默认60天）
+     */
+    List<ChurnRiskVO> getChurnRiskCustomers(int thresholdDays);
+
+    /**
+     * 挽留动作触发
+     * <p>
+     * 对高流失风险客户触发挽留动作，向负责人发送提醒消息
+     *
+     * @param customerId 客户ID
+     * @return 是否触发成功
+     */
+    boolean triggerRetention(Long customerId);
 }
