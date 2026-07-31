@@ -53,6 +53,8 @@ public class SecurityConfig {
                 .requestMatchers("/auth/register").permitAll()
                 // 放行短信验证码接口
                 .requestMatchers("/auth/sms/send").permitAll()
+                // 放行忘记密码接口
+                .requestMatchers("/auth/forgot-password").permitAll()
                 // 放行接口文档
                 .requestMatchers("/doc.html").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()

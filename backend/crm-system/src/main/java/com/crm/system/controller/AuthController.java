@@ -4,6 +4,7 @@ import com.crm.common.api.R;
 import com.crm.common.constant.Constants;
 import com.crm.common.security.SecurityUtils;
 import com.crm.system.annotation.Log;
+import com.crm.system.dto.ForgotPasswordDTO;
 import com.crm.system.dto.LoginDTO;
 import com.crm.system.dto.RegisterDTO;
 import com.crm.system.dto.SmsCodeDTO;
@@ -73,6 +74,16 @@ public class AuthController {
     public R sendSmsCode(@RequestBody @Valid SmsCodeDTO dto) {
         smsService.sendCode(dto.getPhone());
         return R.ok("验证码已发送，请查收短信");
+    }
+
+    /**
+     * 忘记密码（通过手机号验证码重置）
+     */
+    @Operation(summary = "忘记密码")
+    @PostMapping("/forgot-password")
+    public R forgotPassword(@RequestBody @Valid ForgotPasswordDTO dto) {
+        userService.forgotPassword(dto);
+        return R.ok("密码重置成功，请使用新密码登录");
     }
 
     /**

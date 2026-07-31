@@ -1,6 +1,7 @@
 package com.crm.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.crm.system.dto.ForgotPasswordDTO;
 import com.crm.system.dto.RegisterDTO;
 import com.crm.system.dto.UserPageDTO;
 import com.crm.system.entity.SysUser;
@@ -29,6 +30,13 @@ public interface ISysUserService extends IService<SysUser> {
      * @param dto 注册信息
      */
     void register(RegisterDTO dto);
+
+    /**
+     * 忘记密码（通过手机号验证码重置）
+     *
+     * @param dto 手机号、验证码、新密码
+     */
+    void forgotPassword(ForgotPasswordDTO dto);
 
     /**
      * 获取登录用户信息（角色、权限、菜单树）

@@ -49,3 +49,16 @@ export function register(data: {
   })
 }
 
+/** 忘记密码（手机号验证码重置） */
+export function forgotPassword(data: {
+  phone: string
+  code: string
+  newPassword: string
+}) {
+  return request({
+    url: '/auth/forgot-password',
+    method: 'post',
+    data
+  })
+}
+

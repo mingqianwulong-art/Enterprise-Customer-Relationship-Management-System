@@ -9,6 +9,7 @@ import com.crm.common.exception.BusinessException;
 import com.crm.common.security.LoginUser;
 import com.crm.common.security.SecurityUtils;
 import com.crm.common.utils.JwtUtils;
+import com.crm.system.dto.ForgotPasswordDTO;
 import com.crm.system.dto.RegisterDTO;
 import com.crm.system.dto.UserPageDTO;
 import com.crm.system.entity.SysRole;
@@ -149,6 +150,31 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         user.setRealName(dto.getUsername());
         user.setStatus(1);
         baseMapper.insert(user);
+    }
+
+    /**
+     * 忘记密码（通过手机号验证码重置）
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void forgotPassword(ForgotPasswordDTO dto) {
+        // 1. 校验短信验证码
+        if (!smsService.verifyCode(dto.getPhone(), dto.getCode())) {
+            throw new BusinessException("验证码错误或已失效");
+        }
+        // 2. 查询用户（手机号唯一）
+        SysUser user = baseMapper.selectOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getPhone, dto.getPhone()));
+        if (user == null) {
+            throw new BusinessException("该手机号尚未注册");
+        }
+        // 3. 校验账号状态
+        if (user.getStatus() != null && user.getStatus() == 0) {
+            throw new BusinessException("账号已停用，请联系管理员");
+        }
+        // 4. 加密并更新密码
+        user.setPassword(passwordEncoder.encode(dto.getNewPassword()));
+        baseMapper.updateById(user);
     }
 
     /**

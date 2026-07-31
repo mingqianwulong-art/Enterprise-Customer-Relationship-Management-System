@@ -64,6 +64,8 @@
           </el-form-item>
           <div class="login-footer">
             还没有账号？<el-link type="primary" @click="$router.push('/register')">立即注册</el-link>
+            <span class="footer-divider">|</span>
+            <el-link type="primary" @click="$router.push('/forgot-password')">忘记密码？</el-link>
           </div>
         </el-form>
       </div>
@@ -253,5 +255,10 @@ async function handleLogin() {
   text-align: center;
   font-size: 14px;
   color: #606266;
+}
+
+.footer-divider {
+  margin: 0 8px;
+  color: #c0c4cc;
 }
 </style>

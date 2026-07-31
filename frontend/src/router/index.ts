@@ -16,6 +16,12 @@ const router = createRouter({
       meta: { title: '注册' }
     },
     {
+      path: '/forgot-password',
+      name: 'ForgotPassword',
+      component: () => import('@/views/forgot-password/index.vue'),
+      meta: { title: '找回密码' }
+    },
+    {
       path: '/',
       component: () => import('@/layout/index.vue'),
       redirect: '/dashboard',
@@ -172,7 +178,7 @@ const router = createRouter({
 // 路由守卫：未登录跳登录页
 router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem('token')
-  if (to.path === '/login' || to.path === '/register') {
+  if (to.path === '/login' || to.path === '/register' || to.path === '/forgot-password') {
     if (token) {
       next('/dashboard')
     } else {
