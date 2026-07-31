@@ -55,6 +55,8 @@ public class SecurityConfig {
                 .requestMatchers("/auth/sms/send").permitAll()
                 // 放行忘记密码接口
                 .requestMatchers("/auth/forgot-password").permitAll()
+                // 放行外部渠道线索归集接口（使用 API Key 认证）
+                .requestMatchers("/api/external/**").permitAll()
                 // 放行接口文档
                 .requestMatchers("/doc.html").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()

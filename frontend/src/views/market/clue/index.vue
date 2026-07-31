@@ -36,6 +36,9 @@
       <template #header>
         <div class="card-header">
           <el-button type="primary" @click="handleAdd"><el-icon><Plus /></el-icon>新增线索</el-button>
+          <el-button type="warning" @click="handleAutoAssignAll" :loading="autoAssigning">
+            <el-icon><MagicStick /></el-icon>批量自动分配
+          </el-button>
         </div>
       </template>
       <el-table :data="tableData" v-loading="loading" border style="width: 100%">
@@ -60,9 +63,12 @@
           </template>
         </el-table-column>
         <el-table-column label="创建时间" prop="createTime" min-width="160" />
-        <el-table-column label="操作" width="260" fixed="right" align="center">
+        <el-table-column label="操作" width="320" fixed="right" align="center">
           <template #default="{ row }">
             <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
+            <el-button v-if="row.status === 0" link type="primary" @click="handleAutoAssign(row)">
+              <el-icon><MagicStick /></el-icon>自动分配
+            </el-button>
             <el-button link type="success" @click="handleAssign(row)">分配</el-button>
             <el-button link type="warning" @click="handleClaim(row)">抢单</el-button>
             <el-button link type="danger" @click="handleDelete(row)">删除</el-button>
@@ -127,14 +133,16 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Search, Refresh, Plus } from '@element-plus/icons-vue'
+import { Search, Refresh, Plus, MagicStick } from '@element-plus/icons-vue'
 import {
   getCluePage,
   addClue,
   updateClue,
   deleteClue,
   assignClue,
-  claimClue
+  claimClue,
+  autoAssignClue,
+  autoAssignAllClues
 } from '@/api/market'
 
 const sourceOptions = ['展会', '门店', '抖音', '微信', '官网', '其他']
@@ -335,6 +343,49 @@ async function handleClaim(row: any) {
     loadData()
   } catch (e) {
     // 用户取消或请求错误
+  }
+}
+
+// ==================== 自动分配 ====================
+const autoAssigning = ref(false)
+
+async function handleAutoAssign(row: any) {
+  try {
+    await ElMessageBox.confirm(
+      `确认对【${row.clueName}】触发自动分配？系统将根据区域、行业和销售负载自动匹配最佳销售。`,
+      '自动分配',
+      { confirmButtonText: '确认分配', cancelButtonText: '取消', type: 'info' }
+    )
+    autoAssigning.value = true
+    const res = await autoAssignClue(row.id)
+    ElMessage.success(res.msg || '自动分配成功')
+    loadData()
+  } catch (e: any) {
+    if (e !== 'cancel') {
+      ElMessage.error(e?.message || '自动分配失败')
+    }
+  } finally {
+    autoAssigning.value = false
+  }
+}
+
+async function handleAutoAssignAll() {
+  try {
+    await ElMessageBox.confirm(
+      '确认对所有待分配线索执行批量自动分配？系统将按规则引擎自动匹配最佳销售并推送通知。',
+      '批量自动分配',
+      { confirmButtonText: '确认分配', cancelButtonText: '取消', type: 'warning' }
+    )
+    autoAssigning.value = true
+    const res = await autoAssignAllClues()
+    ElMessage.success(res.msg || '批量自动分配完成')
+    loadData()
+  } catch (e: any) {
+    if (e !== 'cancel') {
+      ElMessage.error(e?.message || '批量自动分配失败')
+    }
+  } finally {
+    autoAssigning.value = false
   }
 }
 

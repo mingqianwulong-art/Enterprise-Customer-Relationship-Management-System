@@ -2,6 +2,7 @@ package com.crm.market.controller;
 
 import com.crm.common.api.R;
 import com.crm.market.entity.Clue;
+import com.crm.market.service.ClueAssignRuleService;
 import com.crm.market.service.IClueService;
 import com.crm.market.vo.CluePageDTO;
 import com.crm.system.annotation.Log;
@@ -29,6 +30,9 @@ public class ClueController {
 
     @Autowired
     private IClueService clueService;
+
+    @Autowired
+    private ClueAssignRuleService clueAssignRuleService;
 
     /**
      * 分页查询线索
@@ -101,5 +105,25 @@ public class ClueController {
     @PutMapping("/{id}/convert")
     public R convert(@PathVariable Long id, @RequestParam Long customerId) {
         return clueService.convertClue(id, customerId) ? R.ok("转化成功") : R.fail("转化失败");
+    }
+
+    /**
+     * 自动分配线索（手动触发规则引擎）
+     */
+    @Operation(summary = "自动分配线索")
+    @PutMapping("/{id}/auto-assign")
+    public R autoAssign(@PathVariable Long id) {
+        Long userId = clueAssignRuleService.autoAssign(id);
+        return userId != null ? R.ok("自动分配成功，分配销售ID：" + userId) : R.fail("无可用销售或线索已分配");
+    }
+
+    /**
+     * 批量自动分配所有待分配线索
+     */
+    @Operation(summary = "批量自动分配待分配线索")
+    @PostMapping("/auto-assign-all")
+    public R autoAssignAll() {
+        int count = clueAssignRuleService.batchAutoAssign();
+        return R.ok("批量自动分配完成，成功分配 " + count + " 条线索");
     }
 }

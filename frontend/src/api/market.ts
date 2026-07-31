@@ -42,6 +42,16 @@ export function convertClue(clueId: number, customerId: number) {
   return request({ url: `/market/clue/${clueId}/convert`, method: 'put', params: { customerId } })
 }
 
+/** 自动分配单条线索（规则引擎） */
+export function autoAssignClue(clueId: number) {
+  return request({ url: `/market/clue/${clueId}/auto-assign`, method: 'put' })
+}
+
+/** 批量自动分配所有待分配线索 */
+export function autoAssignAllClues() {
+  return request({ url: '/market/clue/auto-assign-all', method: 'post' })
+}
+
 // ==================== 渠道管理 ====================
 
 /** 分页查询渠道 */
