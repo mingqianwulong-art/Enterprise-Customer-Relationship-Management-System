@@ -2,6 +2,7 @@ package com.crm.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.crm.common.exception.BusinessException;
 import com.crm.system.entity.SysDept;
 import com.crm.system.mapper.SysDeptMapper;
 import com.crm.system.service.ISysDeptService;
@@ -24,6 +25,20 @@ public class SysDeptServiceImpl extends ServiceImpl<SysDeptMapper, SysDept> impl
                 .eq(SysDept::getStatus, 1)
                 .orderByAsc(SysDept::getParentId)
                 .orderByAsc(SysDept::getOrderNum));
+    }
+
+    /**
+     * 新增部门（同级下不允许重名）
+     */
+    @Override
+    public boolean save(SysDept entity) {
+        Long count = baseMapper.selectCount(new LambdaQueryWrapper<SysDept>()
+                .eq(SysDept::getParentId, entity.getParentId())
+                .eq(SysDept::getDeptName, entity.getDeptName()));
+        if (count > 0) {
+            throw new BusinessException("同一父部门下已存在同名部门");
+        }
+        return super.save(entity);
     }
 
     /**

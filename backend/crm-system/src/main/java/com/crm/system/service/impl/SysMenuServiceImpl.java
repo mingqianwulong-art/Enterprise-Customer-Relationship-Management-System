@@ -2,6 +2,7 @@ package com.crm.system.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.crm.common.exception.BusinessException;
 import com.crm.system.entity.SysMenu;
 import com.crm.system.entity.SysRoleMenu;
 import com.crm.system.entity.SysUserRole;
@@ -85,6 +86,21 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     /**
+     * 新增菜单（同级下同类型不允许重名）
+     */
+    @Override
+    public boolean save(SysMenu entity) {
+        Long count = baseMapper.selectCount(new LambdaQueryWrapper<SysMenu>()
+                .eq(SysMenu::getParentId, entity.getParentId())
+                .eq(SysMenu::getName, entity.getName())
+                .eq(SysMenu::getType, entity.getType()));
+        if (count > 0) {
+            throw new BusinessException("同一父菜单下已存在同类型同名菜单");
+        }
+        return super.save(entity);
+    }
+
+    /**
      * 获取用户角色ID列表
      */
     private List<Long> getUserRoleIds(Long userId) {
@@ -135,6 +151,7 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
         vo.setPerms(menu.getPerms());
         vo.setOrderNum(menu.getOrderNum());
         vo.setVisible(menu.getVisible());
+        vo.setStatus(menu.getStatus());
         return vo;
     }
 }

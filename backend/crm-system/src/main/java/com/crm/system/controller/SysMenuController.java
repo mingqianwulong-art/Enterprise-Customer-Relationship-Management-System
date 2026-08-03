@@ -1,5 +1,6 @@
 package com.crm.system.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.crm.common.api.R;
 import com.crm.common.constant.Perms;
 import com.crm.system.annotation.Log;
@@ -68,6 +69,15 @@ public class SysMenuController {
     @PreAuthorize("hasAuthority('" + Perms.MENU_EDIT + "')")
     @PutMapping
     public R update(@RequestBody SysMenu menu) {
+        // 重名校验（同父级+同类型+同名，排除自身）
+        Long count = menuService.count(new LambdaQueryWrapper<SysMenu>()
+                .eq(SysMenu::getParentId, menu.getParentId())
+                .eq(SysMenu::getName, menu.getName())
+                .eq(SysMenu::getType, menu.getType())
+                .ne(SysMenu::getId, menu.getId()));
+        if (count > 0) {
+            return R.fail("同一父菜单下已存在同类型同名菜单");
+        }
         return menuService.updateById(menu) ? R.ok() : R.fail("修改失败");
     }
 

@@ -1,5 +1,6 @@
 package com.crm.system.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.crm.common.api.R;
 import com.crm.common.constant.Perms;
 import com.crm.system.annotation.Log;
@@ -68,6 +69,14 @@ public class SysDeptController {
     @PreAuthorize("hasAuthority('" + Perms.DEPT_EDIT + "')")
     @PutMapping
     public R update(@RequestBody SysDept dept) {
+        // 重名校验（排除自身）
+        Long count = deptService.count(new LambdaQueryWrapper<SysDept>()
+                .eq(SysDept::getParentId, dept.getParentId())
+                .eq(SysDept::getDeptName, dept.getDeptName())
+                .ne(SysDept::getId, dept.getId()));
+        if (count > 0) {
+            return R.fail("同一父部门下已存在同名部门");
+        }
         return deptService.updateById(dept) ? R.ok() : R.fail("修改失败");
     }
 

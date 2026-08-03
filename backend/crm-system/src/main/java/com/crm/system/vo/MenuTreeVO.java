@@ -42,6 +42,9 @@ public class MenuTreeVO {
     /** 是否可见（0隐藏 1可见） */
     private Integer visible;
 
+    /** 状态（0停用 1启用） */
+    private Integer status;
+
     /** 子菜单 */
     private List<MenuTreeVO> children;
 }

@@ -28,7 +28,7 @@
       </template>
       <el-table :data="tableData" v-loading="loading" border style="width: 100%">
         <el-table-column label="角色名称" prop="roleName" min-width="120" />
-        <el-table-column label="角色标识" prop="roleKey" min-width="140" />
+        <el-table-column label="角色标识" prop="roleCode" min-width="140" />
         <el-table-column label="状态" prop="status" width="100" align="center">
           <template #default="{ row }">
             <el-tag v-if="row.status === 1" type="success" size="small">启用</el-tag>
@@ -64,8 +64,8 @@
         <el-form-item label="角色名称" prop="roleName">
           <el-input v-model="form.roleName" placeholder="请输入角色名称" />
         </el-form-item>
-        <el-form-item label="角色标识" prop="roleKey">
-          <el-input v-model="form.roleKey" placeholder="请输入角色标识" />
+        <el-form-item label="角色标识" prop="roleCode">
+          <el-input v-model="form.roleCode" placeholder="请输入角色标识" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-radio-group v-model="form.status">
@@ -94,7 +94,7 @@ import { getRolePage, addRole, updateRole, deleteRole } from '@/api/system'
 interface RoleRow {
   id: number
   roleName: string
-  roleKey: string
+  roleCode: string
   status: number
   remark: string
   createTime: string
@@ -119,7 +119,7 @@ const formRef = ref<FormInstance>()
 const defaultForm = () => ({
   id: undefined as number | undefined,
   roleName: '',
-  roleKey: '',
+  roleCode: '',
   status: 1,
   remark: ''
 })
@@ -127,7 +127,7 @@ const form = reactive(defaultForm())
 
 const rules: FormRules = {
   roleName: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
-  roleKey: [{ required: true, message: '请输入角色标识', trigger: 'blur' }]
+  roleCode: [{ required: true, message: '请输入角色标识', trigger: 'blur' }]
 }
 
 /** 加载角色列表 */
@@ -168,7 +168,7 @@ function handleEdit(row: RoleRow) {
   Object.assign(form, {
     id: row.id,
     roleName: row.roleName,
-    roleKey: row.roleKey,
+    roleCode: row.roleCode,
     status: row.status,
     remark: row.remark
   })
