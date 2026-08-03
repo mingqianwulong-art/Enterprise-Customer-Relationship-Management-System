@@ -111,6 +111,9 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { getMenuTree, addMenu, updateMenu, deleteMenu } from '@/api/system'
+import { useUserStore } from '@/stores/user'
+
+const userStore = useUserStore()
 
 const loading = ref(false)
 const tableData = ref<any[]>([])
@@ -228,6 +231,8 @@ async function submitForm() {
       }
       dialogVisible.value = false
       loadData()
+      // 刷新用户信息（更新 disabledPaths，让左侧导航栏立即反映停用/启用状态）
+      userStore.fetchUserInfo()
     } catch (e) {
       // 错误已由请求拦截器统一提示
     }
@@ -244,6 +249,8 @@ async function handleDelete(row: any) {
     await deleteMenu(row.id)
     ElMessage.success('删除成功')
     loadData()
+    // 刷新用户信息（更新 disabledPaths）
+    userStore.fetchUserInfo()
   } catch (e) {
     // 用户取消或请求错误
   }
