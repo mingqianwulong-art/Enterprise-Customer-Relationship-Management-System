@@ -71,10 +71,13 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
      */
     @Override
     public boolean addPayment(Payment payment) {
-        // 自动生成回款编号：HK-yyyyMMdd-时间戳后3位
-        String dateStr = LocalDateTime.now().format(DATE_FORMATTER);
-        String seq = String.format("%03d", System.currentTimeMillis() % 1000);
-        payment.setPaymentNo("HK-" + dateStr + "-" + seq);
+        // 自动生成回款编号：HK-yyyyMMdd-序号（查询当天已有数量+1）
+        String today = LocalDateTime.now().format(DATE_FORMATTER);
+        String prefix = "HK-" + today + "-";
+        LambdaQueryWrapper<Payment> wrapper = new LambdaQueryWrapper<>();
+        wrapper.likeRight(Payment::getPaymentNo, prefix);
+        long count = baseMapper.selectCount(wrapper);
+        payment.setPaymentNo(prefix + String.format("%03d", count + 1));
         // 默认待回款
         if (payment.getStatus() == null) {
             payment.setStatus(0);

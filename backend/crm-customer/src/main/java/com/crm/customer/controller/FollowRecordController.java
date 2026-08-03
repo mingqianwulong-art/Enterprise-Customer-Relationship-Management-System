@@ -1,6 +1,7 @@
 package com.crm.customer.controller;
 
 import com.crm.common.api.R;
+import com.crm.common.security.SecurityUtils;
 import com.crm.customer.entity.FollowRecord;
 import com.crm.customer.service.IFollowRecordService;
 import com.crm.system.annotation.Log;
@@ -52,6 +53,8 @@ public class FollowRecordController {
     @Log("新增跟进")
     @PostMapping
     public R add(@RequestBody FollowRecord record) {
+        // 覆写 userId 为当前登录用户，防止前端伪造
+        record.setUserId(SecurityUtils.getCurrentUserIdRequired());
         return followRecordService.addFollowRecord(record) ? R.ok("新增跟进记录成功") : R.fail("新增跟进记录失败");
     }
 }

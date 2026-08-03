@@ -26,6 +26,7 @@ import com.crm.system.vo.LoginVO;
 import com.crm.system.vo.MenuTreeVO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.Objects;
 import java.util.Set;
 
@@ -68,6 +70,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /** 登录态在 Redis 中的过期时间（分钟），与 JWT 过期时间保持一致 */
+    @Value("${jwt.expire:1440}")
+    private long tokenExpireMinutes;
+
     /**
      * 登录
      */
@@ -93,7 +99,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         LoginUser loginUser = buildLoginUser(user);
         try {
             redisTemplate.opsForValue().set(Constants.LOGIN_TOKEN_KEY + user.getId(),
-                    objectMapper.writeValueAsString(loginUser));
+                    objectMapper.writeValueAsString(loginUser),
+                    tokenExpireMinutes, TimeUnit.MINUTES);
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             throw new BusinessException("登录信息序列化失败");
         }

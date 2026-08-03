@@ -8,6 +8,7 @@ import com.crm.customer.entity.FollowRecord;
 import com.crm.customer.mapper.CustomerMapper;
 import com.crm.customer.mapper.FollowRecordMapper;
 import com.crm.customer.service.IFollowRecordService;
+import com.crm.system.service.DataPermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 跟进记录服务实现
@@ -27,6 +30,9 @@ public class FollowRecordServiceImpl extends ServiceImpl<FollowRecordMapper, Fol
 
     @Autowired
     private CustomerMapper customerMapper;
+
+    @Autowired
+    private DataPermissionService dataPermissionService;
 
     /**
      * 按客户ID查跟进记录列表（按时间倒序）
@@ -61,16 +67,28 @@ public class FollowRecordServiceImpl extends ServiceImpl<FollowRecordMapper, Fol
     }
 
     /**
-     * 查今日待跟进列表
+     * 查今日待跟进列表（按数据权限过滤）
      */
     @Override
     public List<FollowRecord> listTodayPending() {
         LocalDateTime todayStart = LocalDateTime.of(LocalDate.now(), LocalTime.MIN);
         LocalDateTime todayEnd = LocalDateTime.of(LocalDate.now(), LocalTime.MAX);
-        return baseMapper.selectList(
-                new LambdaQueryWrapper<FollowRecord>()
-                        .ge(FollowRecord::getNextFollowTime, todayStart)
-                        .le(FollowRecord::getNextFollowTime, todayEnd)
-                        .orderByAsc(FollowRecord::getNextFollowTime));
+        LambdaQueryWrapper<FollowRecord> wrapper = new LambdaQueryWrapper<FollowRecord>()
+                .ge(FollowRecord::getNextFollowTime, todayStart)
+                .le(FollowRecord::getNextFollowTime, todayEnd)
+                .orderByAsc(FollowRecord::getNextFollowTime);
+        // 数据权限过滤：仅展示当前用户数据范围内客户的跟进记录
+        List<Long> visibleOwnerIds = dataPermissionService.getVisibleOwnerIds();
+        if (visibleOwnerIds != null) {
+            if (visibleOwnerIds.isEmpty()) {
+                return Collections.emptyList();
+            }
+            String ownerIds = visibleOwnerIds.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(","));
+            wrapper.inSql(FollowRecord::getCustomerId,
+                    "SELECT id FROM cus_customer WHERE deleted = 0 AND owner_id IN (" + ownerIds + ")");
+        }
+        return baseMapper.selectList(wrapper);
     }
 }

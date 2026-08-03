@@ -16,6 +16,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -37,6 +39,8 @@ import java.util.stream.Collectors;
  */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -81,7 +85,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (Exception e) {
             // 认证失败返回 401 JSON
-            e.printStackTrace();
+            log.error("JWT认证失败", e);
             returnUnauthorized(response, "认证失败，请重新登录: " + e.getClass().getSimpleName() + ": " + e.getMessage());
         }
     }

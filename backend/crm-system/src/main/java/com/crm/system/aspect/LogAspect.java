@@ -59,9 +59,12 @@ public class LogAspect {
         String className = joinPoint.getTarget().getClass().getSimpleName();
         String methodName = joinPoint.getSignature().getName();
         sysLog.setMethod(className + "." + methodName + "()");
-        // 请求参数
+        // 请求参数（脱敏敏感字段）
         try {
-            sysLog.setParams(objectMapper.writeValueAsString(joinPoint.getArgs()));
+            String json = objectMapper.writeValueAsString(joinPoint.getArgs());
+            // 脱敏 password、newPassword 等敏感字段
+            json = json.replaceAll("(\"(?:password|newPassword|oldPassword|confirmPassword)\"\\s*:\\s*)\"[^\"]*\"", "$1\"***\"");
+            sysLog.setParams(json);
         } catch (Exception e) {
             sysLog.setParams(Arrays.toString(joinPoint.getArgs()));
         }

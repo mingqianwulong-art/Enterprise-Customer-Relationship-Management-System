@@ -4,6 +4,7 @@ import com.crm.business.entity.Contract;
 import com.crm.business.service.IContractService;
 import com.crm.business.vo.ContractPageDTO;
 import com.crm.common.api.R;
+import com.crm.common.security.SecurityUtils;
 import com.crm.system.annotation.Log;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,11 +79,13 @@ public class ContractController {
     }
 
     /**
-     * 审批合同
+     * 审批合同（审批人从当前登录用户获取，前端无需传 approverId）
      */
     @Operation(summary = "审批合同")
+    @Log("审批合同")
     @PutMapping("/{id}/approve")
-    public R approve(@PathVariable Long id, @RequestParam Long approverId) {
+    public R approve(@PathVariable Long id) {
+        Long approverId = SecurityUtils.getCurrentUserIdRequired();
         return contractService.approve(id, approverId) ? R.ok("审批合同成功") : R.fail("审批合同失败");
     }
 }

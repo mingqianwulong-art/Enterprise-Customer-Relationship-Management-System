@@ -113,12 +113,16 @@ public class OpportunityServiceImpl extends ServiceImpl<OpportunityMapper, Oppor
 
     /**
      * 修改商机阶段
+     * 已赢单(5)/已输单(6)为终态，不可再变更
      */
     @Override
     public boolean changeStage(Long id, Integer stage) {
         Opportunity opp = baseMapper.selectById(id);
         if (opp == null) {
             throw new BusinessException("商机不存在");
+        }
+        if (opp.getStage() != null && (opp.getStage() == 5 || opp.getStage() == 6)) {
+            throw new BusinessException("该商机已结束（赢单/输单），无法变更阶段");
         }
         Opportunity update = new Opportunity();
         update.setId(id);

@@ -185,7 +185,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
 import { Search, Refresh, Plus, Edit, Delete, Key, User } from '@element-plus/icons-vue'
 import {
@@ -247,13 +247,14 @@ const defaultForm = () => ({
 })
 const form = reactive(defaultForm())
 
-const rules: FormRules = {
+const rules = computed<FormRules>(() => ({
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   realName: [{ required: true, message: '请输入真实姓名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  // 编辑用户时密码非必填（留空则不修改密码）
+  password: isEdit.value ? [] : [{ required: true, message: '请输入密码', trigger: 'blur' }],
   phone: [{ pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }],
   email: [{ type: 'email', message: '请输入正确的邮箱', trigger: 'blur' }]
-}
+}))
 
 // 重置密码
 const resetPwdVisible = ref(false)

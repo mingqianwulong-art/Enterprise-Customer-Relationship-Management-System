@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.crm.common.exception.BusinessException;
+import com.crm.common.security.SecurityUtils;
 import com.crm.customer.entity.Contact;
 import com.crm.customer.entity.Customer;
 import com.crm.customer.entity.CustomerTag;
@@ -188,6 +189,7 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
 
     /**
      * 领取客户（从公海）
+     * 使用条件更新（WHERE in_pool=1）实现乐观锁，防止并发领取
      */
     @Override
     public boolean claimCustomer(Long id, Long userId) {
@@ -198,21 +200,36 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         if (customer.getInPool() == null || customer.getInPool() == 0) {
             throw new BusinessException("该客户不在公海中，无法领取");
         }
-        Customer update = new Customer();
-        update.setId(id);
-        update.setOwnerId(userId);
-        update.setInPool(0);
-        return baseMapper.updateById(update) > 0;
+        // 乐观锁：条件更新 WHERE in_pool=1，并发下只有一方能成功
+        LambdaUpdateWrapper<Customer> wrapper = new LambdaUpdateWrapper<Customer>()
+                .eq(Customer::getId, id)
+                .eq(Customer::getInPool, 1)
+                .set(Customer::getOwnerId, userId)
+                .set(Customer::getInPool, 0);
+        int rows = baseMapper.update(null, wrapper);
+        if (rows == 0) {
+            throw new BusinessException("客户已被他人领取，请刷新后重试");
+        }
+        return true;
     }
 
     /**
-     * 退回公海
+     * 退回公海（校验归属：仅负责人本人或有数据权限的用户可操作）
      */
     @Override
     public boolean releaseToPool(Long id) {
         Customer customer = baseMapper.selectById(id);
         if (customer == null) {
             throw new BusinessException("客户不存在");
+        }
+        // 校验归属：负责人本人 或 该客户在当前用户数据权限范围内
+        List<Long> visibleOwnerIds = dataPermissionService.getVisibleOwnerIds();
+        Long currentUserId = SecurityUtils.getCurrentUserIdRequired();
+        boolean isOwner = customer.getOwnerId() != null && customer.getOwnerId().equals(currentUserId);
+        boolean hasDataScope = visibleOwnerIds == null
+                || (customer.getOwnerId() != null && visibleOwnerIds.contains(customer.getOwnerId()));
+        if (!isOwner && !hasDataScope) {
+            throw new BusinessException("无权操作：仅客户负责人或有数据权限的用户可退回公海");
         }
         Customer update = new Customer();
         update.setId(id);

@@ -1,6 +1,7 @@
 package com.crm.market.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -102,6 +103,7 @@ public class ClueServiceImpl extends ServiceImpl<ClueMapper, Clue> implements IC
 
     /**
      * 分配线索给销售
+     * 使用条件更新（WHERE status=0）实现乐观锁，防止并发分配
      */
     @Override
     public boolean assignClue(Long clueId, Long userId) {
@@ -112,15 +114,21 @@ public class ClueServiceImpl extends ServiceImpl<ClueMapper, Clue> implements IC
         if (clue.getStatus() != null && clue.getStatus() != 0) {
             throw new BusinessException("该线索已被分配，无法重复分配");
         }
-        Clue update = new Clue();
-        update.setId(clueId);
-        update.setOwnerId(userId);
-        update.setStatus(1);
-        return baseMapper.updateById(update) > 0;
+        LambdaUpdateWrapper<Clue> wrapper = new LambdaUpdateWrapper<Clue>()
+                .eq(Clue::getId, clueId)
+                .eq(Clue::getStatus, 0)
+                .set(Clue::getOwnerId, userId)
+                .set(Clue::getStatus, 1);
+        int rows = baseMapper.update(null, wrapper);
+        if (rows == 0) {
+            throw new BusinessException("线索状态已变更，请刷新后重试");
+        }
+        return true;
     }
 
     /**
      * 抢单
+     * 使用条件更新（WHERE status=0）实现乐观锁，防止并发抢单
      */
     @Override
     public boolean claimClue(Long clueId, Long userId) {
@@ -131,11 +139,16 @@ public class ClueServiceImpl extends ServiceImpl<ClueMapper, Clue> implements IC
         if (clue.getStatus() != null && clue.getStatus() != 0) {
             throw new BusinessException("该线索已被领取，无法重复抢单");
         }
-        Clue update = new Clue();
-        update.setId(clueId);
-        update.setOwnerId(userId);
-        update.setStatus(1);
-        return baseMapper.updateById(update) > 0;
+        LambdaUpdateWrapper<Clue> wrapper = new LambdaUpdateWrapper<Clue>()
+                .eq(Clue::getId, clueId)
+                .eq(Clue::getStatus, 0)
+                .set(Clue::getOwnerId, userId)
+                .set(Clue::getStatus, 1);
+        int rows = baseMapper.update(null, wrapper);
+        if (rows == 0) {
+            throw new BusinessException("线索已被他人领取，请刷新后重试");
+        }
+        return true;
     }
 
     /**

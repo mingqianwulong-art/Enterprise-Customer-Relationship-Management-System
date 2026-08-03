@@ -21,7 +21,7 @@ mybatis-plus:
   type-aliases-package: com.crm.**.entity
   configuration:
     map-underscore-to-camel-case: true
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
     cache-enabled: false
   global-config:
     db-config:

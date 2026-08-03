@@ -38,25 +38,25 @@ const router = createRouter({
           path: 'system/user',
           name: 'SystemUser',
           component: () => import('@/views/system/user/index.vue'),
-          meta: { title: '用户管理', icon: 'UserFilled' }
+          meta: { title: '用户管理', icon: 'UserFilled', perms: 'system:user:list' }
         },
         {
           path: 'system/role',
           name: 'SystemRole',
           component: () => import('@/views/system/role/index.vue'),
-          meta: { title: '角色管理', icon: 'Avatar' }
+          meta: { title: '角色管理', icon: 'Avatar', perms: 'system:role:list' }
         },
         {
           path: 'system/menu',
           name: 'SystemMenu',
           component: () => import('@/views/system/menu/index.vue'),
-          meta: { title: '菜单管理', icon: 'Menu' }
+          meta: { title: '菜单管理', icon: 'Menu', perms: 'system:menu:list' }
         },
         {
           path: 'system/dept',
           name: 'SystemDept',
           component: () => import('@/views/system/dept/index.vue'),
-          meta: { title: '部门管理', icon: 'OfficeBuilding' }
+          meta: { title: '部门管理', icon: 'OfficeBuilding', perms: 'system:dept:list' }
         },
         {
           path: 'system/log',
@@ -221,6 +221,17 @@ router.beforeEach(async (to, _from, next) => {
     ElMessage.warning('该功能已被停用')
     next('/dashboard')
     return
+  }
+  // 前端权限校验：路由声明了 meta.perms 时，校验当前用户是否具备
+  const requiredPerms = to.meta?.perms as string | string[] | undefined
+  if (requiredPerms) {
+    const { hasPerm, hasAnyPerm } = await import('@/utils/permission')
+    const ok = Array.isArray(requiredPerms) ? hasAnyPerm(requiredPerms) : hasPerm(requiredPerms)
+    if (!ok) {
+      ElMessage.error('无权访问该功能')
+      next('/dashboard')
+      return
+    }
   }
   next()
 })

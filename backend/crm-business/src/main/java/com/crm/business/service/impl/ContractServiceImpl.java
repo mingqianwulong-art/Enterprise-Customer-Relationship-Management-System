@@ -136,6 +136,9 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
         if (contract == null) {
             throw new BusinessException("合同不存在");
         }
+        if (contract.getStatus() != null && contract.getStatus() != 0) {
+            throw new BusinessException("该合同已审批，无法重复审批");
+        }
         Contract update = new Contract();
         update.setId(id);
         update.setStatus(1);

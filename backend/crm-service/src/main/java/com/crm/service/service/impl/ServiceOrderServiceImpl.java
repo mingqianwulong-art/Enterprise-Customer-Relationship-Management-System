@@ -81,10 +81,13 @@ public class ServiceOrderServiceImpl extends ServiceImpl<ServiceOrderMapper, Ser
      */
     @Override
     public boolean addOrder(ServiceOrder order) {
-        // 生成工单编号：WO + yyyyMMdd + 3位序号
-        String dateStr = LocalDateTime.now().format(DATE_FORMATTER);
-        String seq = String.format("%03d", System.currentTimeMillis() % 1000);
-        order.setOrderNo("WO" + dateStr + seq);
+        // 生成工单编号：WO + yyyyMMdd + 3位序号（查询当天已有数量+1）
+        String today = LocalDateTime.now().format(DATE_FORMATTER);
+        String prefix = "WO" + today;
+        LambdaQueryWrapper<ServiceOrder> wrapper = new LambdaQueryWrapper<>();
+        wrapper.likeRight(ServiceOrder::getOrderNo, prefix);
+        long count = baseMapper.selectCount(wrapper);
+        order.setOrderNo(prefix + String.format("%03d", count + 1));
         // 默认状态为待处理（0）
         if (order.getStatus() == null) {
             order.setStatus(0);
