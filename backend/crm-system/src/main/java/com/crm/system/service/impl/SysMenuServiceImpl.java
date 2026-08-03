@@ -86,18 +86,45 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     /**
-     * 查询所有已停用（status=0）的菜单路径集合（仅 type=2 菜单）
+     * 查询所有已停用的菜单路径集合（含目录与菜单，支持目录级联停用）
+     * 规则：
+     *   1. status=0 的目录（type=1）路径加入集合
+     *   2. status=0 的菜单（type=2）路径加入集合
+     *   3. 父目录已停用的菜单（type=2）路径也加入集合（级联停用，防 URL 直接访问）
      * 前端左侧导航栏据此拦截点击并提示"该功能已被停用"
      */
     @Override
     public Set<String> getDisabledPaths() {
-        List<SysMenu> menus = baseMapper.selectList(new LambdaQueryWrapper<SysMenu>()
+        // 1. 所有停用的目录（type=1, status=0）
+        List<SysMenu> disabledDirs = baseMapper.selectList(new LambdaQueryWrapper<SysMenu>()
                 .eq(SysMenu::getStatus, 0)
-                .eq(SysMenu::getType, 2));
-        return menus.stream()
+                .eq(SysMenu::getType, 1));
+        Set<Long> disabledDirIds = disabledDirs.stream()
+                .map(SysMenu::getId)
+                .collect(Collectors.toSet());
+        Set<String> disabledPaths = new java.util.HashSet<>();
+        disabledDirs.stream()
                 .map(SysMenu::getPath)
                 .filter(p -> p != null && !p.isEmpty())
-                .collect(Collectors.toSet());
+                .forEach(disabledPaths::add);
+
+        // 2. 停用的菜单（type=2, status=0）+ 父目录已停用的菜单（级联）
+        LambdaQueryWrapper<SysMenu> menuWrapper = new LambdaQueryWrapper<SysMenu>()
+                .eq(SysMenu::getType, 2);
+        if (!disabledDirIds.isEmpty()) {
+            // status=0 OR parentId IN (停用目录ID)
+            menuWrapper.and(w -> w.eq(SysMenu::getStatus, 0)
+                    .or().in(SysMenu::getParentId, disabledDirIds));
+        } else {
+            menuWrapper.eq(SysMenu::getStatus, 0);
+        }
+        List<SysMenu> menus = baseMapper.selectList(menuWrapper);
+        menus.stream()
+                .map(SysMenu::getPath)
+                .filter(p -> p != null && !p.isEmpty())
+                .forEach(disabledPaths::add);
+
+        return disabledPaths;
     }
 
     /**

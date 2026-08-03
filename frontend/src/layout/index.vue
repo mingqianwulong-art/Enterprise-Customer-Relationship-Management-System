@@ -19,8 +19,15 @@
         @select="handleMenuSelect"
       >
           <template v-for="item in menuList" :key="item.path">
-            <!-- 有子菜单 -->
-            <el-sub-menu v-if="item.children && item.children.length" :index="item.path">
+            <!-- 目录停用：当普通菜单项渲染（灰色，点击提示，不展开子菜单） -->
+            <el-menu-item v-if="isMenuDisabled(item.path)" :index="item.path" class="menu-disabled">
+              <el-icon v-if="item.meta?.icon">
+                <component :is="item.meta.icon" />
+              </el-icon>
+              <span>{{ item.meta?.title }}</span>
+            </el-menu-item>
+            <!-- 有子菜单且未停用 -->
+            <el-sub-menu v-else-if="item.children && item.children.length" :index="item.path">
               <template #title>
                 <el-icon v-if="item.meta?.icon">
                   <component :is="item.meta.icon" />
@@ -39,8 +46,8 @@
                 <span>{{ child.meta?.title }}</span>
               </el-menu-item>
             </el-sub-menu>
-            <!-- 无子菜单 -->
-            <el-menu-item v-else :index="item.path" :class="{ 'menu-disabled': isMenuDisabled(item.path) }">
+            <!-- 无子菜单且未停用 -->
+            <el-menu-item v-else :index="item.path">
               <el-icon v-if="item.meta?.icon">
                 <component :is="item.meta.icon" />
               </el-icon>
