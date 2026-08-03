@@ -59,9 +59,24 @@ public class ClueServiceImpl extends ServiceImpl<ClueMapper, Clue> implements IC
      */
     @Override
     public boolean addClue(Clue clue) {
-        // 新增线索默认待分配
         if (clue.getStatus() == null) {
             clue.setStatus(0);
+        }
+        // 同一公司下线索名不能重复
+        Long nameCount = baseMapper.selectCount(new LambdaQueryWrapper<Clue>()
+                .eq(Clue::getCompany, clue.getCompany())
+                .eq(Clue::getClueName, clue.getClueName()));
+        if (nameCount > 0) {
+            throw new BusinessException("该公司下已存在同名线索，请勿重复新建");
+        }
+        // 同一电话不能对应不同公司
+        if (clue.getPhone() != null && !clue.getPhone().isEmpty()) {
+            Long phoneCount = baseMapper.selectCount(new LambdaQueryWrapper<Clue>()
+                    .eq(Clue::getPhone, clue.getPhone())
+                    .ne(Clue::getCompany, clue.getCompany()));
+            if (phoneCount > 0) {
+                throw new BusinessException("该电话号码已关联其他公司，请核实后再试");
+            }
         }
         return baseMapper.insert(clue) > 0;
     }

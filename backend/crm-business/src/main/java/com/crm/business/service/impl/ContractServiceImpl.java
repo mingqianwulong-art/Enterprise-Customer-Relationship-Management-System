@@ -13,6 +13,7 @@ import com.crm.system.service.DataPermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -65,19 +66,31 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
     }
 
     /**
-     * 新增合同（自动生成合同编号 HT-yyyyMMdd-xxx）
+     * 新增合同（自动生成合同编号 HT-yyyyMMdd-序号）
      */
     @Override
     public boolean addContract(Contract contract) {
-        // 生成合同编号：HT-yyyyMMdd-时间戳后3位
-        String dateStr = LocalDateTime.now().format(DATE_FORMATTER);
-        String seq = String.format("%03d", System.currentTimeMillis() % 1000);
-        contract.setContractNo("HT-" + dateStr + "-" + seq);
+        validateContractDates(contract);
+        // 自动生成合同编号：HT-yyyyMMdd-001
+        contract.setContractNo(generateContractNo());
         // 默认待审批
         if (contract.getStatus() == null) {
             contract.setStatus(0);
         }
         return baseMapper.insert(contract) > 0;
+    }
+
+    /**
+     * 生成合同编号，格式：HT-yyyyMMdd-序号（当天第几份合同）
+     */
+    private String generateContractNo() {
+        String today = LocalDate.now().format(DATE_FORMATTER);
+        String prefix = "HT-" + today + "-";
+        // 查询当天已有的合同数
+        LambdaQueryWrapper<Contract> wrapper = new LambdaQueryWrapper<>();
+        wrapper.likeRight(Contract::getContractNo, prefix);
+        long count = baseMapper.selectCount(wrapper);
+        return prefix + String.format("%03d", count + 1);
     }
 
     /**
@@ -88,7 +101,22 @@ public class ContractServiceImpl extends ServiceImpl<ContractMapper, Contract> i
         if (contract.getId() == null) {
             throw new BusinessException("合同ID不能为空");
         }
+        validateContractDates(contract);
         return baseMapper.updateById(contract) > 0;
+    }
+
+    /**
+     * 校验合同日期逻辑
+     */
+    private void validateContractDates(Contract contract) {
+        if (contract.getStartDate() != null && contract.getSignedDate() != null
+                && contract.getStartDate().isBefore(contract.getSignedDate())) {
+            throw new BusinessException("开始日期不能早于签订日期");
+        }
+        if (contract.getEndDate() != null && contract.getStartDate() != null
+                && contract.getEndDate().isBefore(contract.getStartDate())) {
+            throw new BusinessException("结束日期不能早于开始日期");
+        }
     }
 
     /**

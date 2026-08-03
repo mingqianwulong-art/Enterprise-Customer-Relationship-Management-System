@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -77,6 +78,9 @@ public class OpportunityServiceImpl extends ServiceImpl<OpportunityMapper, Oppor
      */
     @Override
     public boolean addOpportunity(Opportunity opp) {
+        if (opp.getExpectedCloseDate() != null && opp.getExpectedCloseDate().isBefore(LocalDate.now())) {
+            throw new BusinessException("预计成交日期不能早于今天");
+        }
         opp.setStageChangeTime(LocalDateTime.now());
         return baseMapper.insert(opp) > 0;
     }

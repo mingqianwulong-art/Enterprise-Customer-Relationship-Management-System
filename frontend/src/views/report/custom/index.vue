@@ -16,6 +16,7 @@
             format="YYYY年MM月DD日"
             value-format="YYYY-MM-DD"
             style="width: 160px"
+            @change="onStartDateChange"
           />
         </el-form-item>
         <el-form-item label="结束日期">
@@ -26,6 +27,7 @@
             format="YYYY年MM月DD日"
             value-format="YYYY-MM-DD"
             style="width: 160px"
+            :disabled-date="disabledEndDate"
           />
         </el-form-item>
         <el-form-item>
@@ -142,6 +144,19 @@ async function handleQuery() {
 function handleReset() {
   queryForm.value = { startDate: '', endDate: '', ownerId: null }
   handleQuery()
+}
+
+// 开始日期变化时清空结束日期，避免结束日期早于开始日期
+function onStartDateChange() {
+  queryForm.value.endDate = ''
+}
+
+// 结束日期不能早于开始日期
+function disabledEndDate(time: Date) {
+  if (!queryForm.value.startDate) return false
+  const start = new Date(queryForm.value.startDate)
+  start.setHours(0, 0, 0, 0)
+  return time.getTime() < start.getTime()
 }
 </script>
 

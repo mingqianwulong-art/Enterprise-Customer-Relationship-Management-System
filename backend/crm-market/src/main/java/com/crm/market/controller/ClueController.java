@@ -1,6 +1,7 @@
 package com.crm.market.controller;
 
 import com.crm.common.api.R;
+import com.crm.common.security.SecurityUtils;
 import com.crm.market.entity.Clue;
 import com.crm.market.service.ClueAssignRuleService;
 import com.crm.market.service.IClueService;
@@ -94,7 +95,8 @@ public class ClueController {
      */
     @Operation(summary = "抢单")
     @PutMapping("/{id}/claim")
-    public R claim(@PathVariable Long id, @RequestParam Long userId) {
+    public R claim(@PathVariable Long id) {
+        Long userId = SecurityUtils.getCurrentUserIdRequired();
         return clueService.claimClue(id, userId) ? R.ok("抢单成功") : R.fail("抢单失败");
     }
 

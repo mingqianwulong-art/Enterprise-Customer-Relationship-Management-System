@@ -108,6 +108,7 @@
             value-format="YYYY-MM-DD"
             placeholder="请选择日期"
             style="width: 100%"
+            :disabled-date="disabledDate"
           />
         </el-form-item>
         <el-form-item label="来源" prop="source">
@@ -228,6 +229,13 @@ const rules: FormRules = {
   customerId: [{ required: true, message: '请输入客户ID', trigger: 'blur' }],
   customerName: [{ required: true, message: '请输入客户名称', trigger: 'blur' }],
   stage: [{ required: true, message: '请选择商机阶段', trigger: 'change' }]
+}
+
+// 禁用今天之前的日期
+function disabledDate(time: Date) {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  return time.getTime() < today.getTime()
 }
 
 // 阶段推进

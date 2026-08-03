@@ -89,13 +89,13 @@
           <el-input-number v-model="form.amount" :min="0" :precision="2" controls-position="right" style="width: 100%" />
         </el-form-item>
         <el-form-item label="签订日期" prop="signedDate">
-          <el-date-picker v-model="form.signedDate" type="date" value-format="YYYY-MM-DD" placeholder="请选择签订日期" style="width: 100%" />
+          <el-date-picker v-model="form.signedDate" type="date" value-format="YYYY-MM-DD" placeholder="请选择签订日期" style="width: 100%" @change="onSignedDateChange" />
         </el-form-item>
         <el-form-item label="开始日期" prop="startDate">
-          <el-date-picker v-model="form.startDate" type="date" format="YYYY年MM月DD日" value-format="YYYY-MM-DD" placeholder="请选择开始日期" style="width: 100%" />
+          <el-date-picker v-model="form.startDate" type="date" format="YYYY年MM月DD日" value-format="YYYY-MM-DD" placeholder="请先选择签订日期" style="width: 100%" :disabled="!form.signedDate" :disabled-date="disabledStartDate" @change="onStartDateChange" />
         </el-form-item>
         <el-form-item label="结束日期" prop="endDate">
-          <el-date-picker v-model="form.endDate" type="date" format="YYYY年MM月DD日" value-format="YYYY-MM-DD" placeholder="请选择结束日期" style="width: 100%" />
+          <el-date-picker v-model="form.endDate" type="date" format="YYYY年MM月DD日" value-format="YYYY-MM-DD" placeholder="请先选择开始日期" style="width: 100%" :disabled="!form.startDate" :disabled-date="disabledEndDate" />
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-select v-model="form.status" placeholder="请选择" style="width: 100%">
@@ -170,6 +170,33 @@ const rules: FormRules = {
   customerName: [{ required: true, message: '请输入客户名称', trigger: 'blur' }],
   amount: [{ required: true, message: '请输入合同金额', trigger: 'blur' }],
   status: [{ required: true, message: '请选择状态', trigger: 'change' }]
+}
+
+// 签订日期变化时，清空开始日期和结束日期
+function onSignedDateChange() {
+  form.startDate = ''
+  form.endDate = ''
+}
+
+// 开始日期变化时，清空结束日期
+function onStartDateChange() {
+  form.endDate = ''
+}
+
+// 开始日期不能小于签订日期
+function disabledStartDate(time: Date) {
+  if (!form.signedDate) return false
+  const signed = new Date(form.signedDate)
+  signed.setHours(0, 0, 0, 0)
+  return time.getTime() < signed.getTime()
+}
+
+// 结束日期不能小于开始日期
+function disabledEndDate(time: Date) {
+  if (!form.startDate) return false
+  const start = new Date(form.startDate)
+  start.setHours(0, 0, 0, 0)
+  return time.getTime() < start.getTime()
 }
 
 function statusText(status: number) {
