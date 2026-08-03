@@ -77,8 +77,8 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     public List<MenuTreeVO> getAllMenuTree() {
+        // 菜单管理页面需展示全部菜单（含停用），不过滤 status
         List<SysMenu> menus = baseMapper.selectList(new LambdaQueryWrapper<SysMenu>()
-                .eq(SysMenu::getStatus, 1)
                 .ne(SysMenu::getType, 3)
                 .orderByAsc(SysMenu::getParentId)
                 .orderByAsc(SysMenu::getOrderNum));
