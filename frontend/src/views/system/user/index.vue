@@ -74,9 +74,10 @@
           </template>
         </el-table-column>
         <el-table-column label="最后登录时间" prop="lastLoginTime" min-width="160" />
-        <el-table-column label="操作" fixed="right" width="220">
+        <el-table-column label="操作" fixed="right" width="290">
           <template #default="{ row }">
             <el-button link type="primary" :icon="Edit" @click="handleEdit(row)">编辑</el-button>
+            <el-button link type="success" :icon="User" @click="handleAssignRole(row)">分配角色</el-button>
             <el-button link type="warning" :icon="Key" @click="handleResetPwd(row)">重置密码</el-button>
             <el-button link type="danger" :icon="Delete" @click="handleDelete(row)">删除</el-button>
           </template>
@@ -161,13 +162,32 @@
         <el-button type="primary" @click="submitResetPwd">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 分配角色弹窗 -->
+    <el-dialog v-model="roleVisible" title="分配角色" width="480px">
+      <div style="margin-bottom: 12px; color: #606266;">
+        为用户 <b>{{ roleForm.username }}</b> 分配角色：
+      </div>
+      <el-checkbox-group v-model="roleForm.roleIds" v-loading="roleLoading">
+        <div v-for="role in roleOptions" :key="role.id" style="padding: 6px 0;">
+          <el-checkbox :label="role.id">
+            {{ role.roleName }}
+            <el-tag size="small" type="info" style="margin-left: 8px;">{{ role.roleCode }}</el-tag>
+          </el-checkbox>
+        </div>
+      </el-checkbox-group>
+      <template #footer>
+        <el-button @click="roleVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitAssignRole">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Search, Refresh, Plus, Edit, Delete, Key } from '@element-plus/icons-vue'
+import { Search, Refresh, Plus, Edit, Delete, Key, User } from '@element-plus/icons-vue'
 import {
   getUserPage,
   addUser,
@@ -175,7 +195,10 @@ import {
   deleteUser,
   resetPwd,
   changeUserStatus,
-  getDeptTree
+  getDeptTree,
+  getRoleList,
+  getUserRoles,
+  assignUserRoles
 } from '@/api/system'
 
 interface UserRow {
@@ -378,6 +401,45 @@ async function submitResetPwd() {
     await resetPwd(resetPwdForm.userId as number, resetPwdForm.password)
     ElMessage.success('密码重置成功')
     resetPwdVisible.value = false
+  } catch {
+    // 错误已由请求拦截器统一提示
+  }
+}
+
+// 分配角色
+const roleVisible = ref(false)
+const roleLoading = ref(false)
+const roleOptions = ref<any[]>([])
+const roleForm = reactive({
+  userId: undefined as number | undefined,
+  username: '',
+  roleIds: [] as number[]
+})
+
+async function handleAssignRole(row: UserRow) {
+  roleForm.userId = row.id
+  roleForm.username = row.username
+  roleForm.roleIds = []
+  roleVisible.value = true
+  roleLoading.value = true
+  try {
+    // 并行加载角色列表 + 用户已分配角色
+    const [roleRes, userRoleRes]: any[] = await Promise.all([getRoleList(), getUserRoles(row.id)])
+    roleOptions.value = (roleRes.data || []).filter((r: any) => r.status === 1)
+    roleForm.roleIds = (userRoleRes.data || []).map((id: any) => Number(id))
+  } catch {
+    // 错误已由请求拦截器统一提示
+  } finally {
+    roleLoading.value = false
+  }
+}
+
+async function submitAssignRole() {
+  if (!roleForm.userId) return
+  try {
+    await assignUserRoles(roleForm.userId, roleForm.roleIds)
+    ElMessage.success('角色分配成功')
+    roleVisible.value = false
   } catch {
     // 错误已由请求拦截器统一提示
   }

@@ -37,6 +37,16 @@ export function changeUserStatus(userId: number, status: number) {
   return request({ url: '/system/user/changeStatus', method: 'put', params: { userId, status } })
 }
 
+/** 查询用户已分配的角色ID列表 */
+export function getUserRoles(userId: number) {
+  return request({ url: `/system/user/${userId}/roles`, method: 'get' })
+}
+
+/** 分配角色 */
+export function assignUserRoles(userId: number, roleIds: number[]) {
+  return request({ url: `/system/user/${userId}/roles`, method: 'put', data: { roleIds } })
+}
+
 // ==================== 角色管理 ====================
 
 /** 分页查询角色 */

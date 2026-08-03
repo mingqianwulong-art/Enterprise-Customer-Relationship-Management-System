@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 用户控制器
  *
@@ -108,5 +111,28 @@ public class SysUserController {
     @PutMapping("/changeStatus")
     public R changeStatus(@RequestParam Long userId, @RequestParam Integer status) {
         return userService.changeStatus(userId, status) ? R.ok() : R.fail("修改失败");
+    }
+
+    /**
+     * 查询用户已分配的角色ID列表
+     */
+    @Operation(summary = "查询用户角色")
+    @PreAuthorize("hasAuthority('" + Perms.USER_ASSIGN + "')")
+    @GetMapping("/{userId}/roles")
+    public R getUserRoles(@PathVariable Long userId) {
+        return R.ok(userService.getUserRoleIds(userId));
+    }
+
+    /**
+     * 分配角色
+     */
+    @Operation(summary = "分配角色")
+    @Log("分配角色")
+    @PreAuthorize("hasAuthority('" + Perms.USER_ASSIGN + "')")
+    @PutMapping("/{userId}/roles")
+    public R assignRoles(@PathVariable Long userId, @RequestBody Map<String, Object> body) {
+        @SuppressWarnings("unchecked")
+        List<Long> roleIds = (List<Long>) body.get("roleIds");
+        return userService.assignRoles(userId, roleIds) ? R.ok() : R.fail("分配失败");
     }
 }

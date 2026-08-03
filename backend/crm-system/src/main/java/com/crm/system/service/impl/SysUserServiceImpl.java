@@ -336,4 +336,35 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 .in(SysUser::getDeptId, deptIds));
         return users.stream().map(SysUser::getId).collect(java.util.stream.Collectors.toList());
     }
+
+    /**
+     * 查询用户已分配的角色ID列表
+     */
+    @Override
+    public List<Long> getUserRoleIds(Long userId) {
+        List<SysUserRole> userRoles = userRoleMapper.selectList(
+                new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, userId));
+        return userRoles.stream().map(SysUserRole::getRoleId).collect(java.util.stream.Collectors.toList());
+    }
+
+    /**
+     * 分配角色（先删后增，事务）
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean assignRoles(Long userId, List<Long> roleIds) {
+        // 先删除该用户的所有角色关联
+        userRoleMapper.delete(new LambdaQueryWrapper<SysUserRole>()
+                .eq(SysUserRole::getUserId, userId));
+        // 再批量插入新的角色关联
+        if (roleIds != null && !roleIds.isEmpty()) {
+            for (Long roleId : roleIds) {
+                SysUserRole userRole = new SysUserRole();
+                userRole.setUserId(userId);
+                userRole.setRoleId(roleId);
+                userRoleMapper.insert(userRole);
+            }
+        }
+        return true;
+    }
 }

@@ -26,6 +26,7 @@ INSERT INTO sys_menu (id, parent_id, name, perms, type, order_num, status) VALUE
 (102, 21, '用户删除', 'system:user:delete', 3, 3, 1),
 (103, 21, '重置密码', 'system:user:reset',  3, 4, 1),
 (104, 21, '用户查询', 'system:user:list',   3, 5, 1),
+(105, 21, '分配角色', 'system:user:assign', 3, 6, 1),
 -- 角色管理按钮
 (110, 22, '角色新增', 'system:role:add',    3, 1, 1),
 (111, 22, '角色修改', 'system:role:edit',   3, 2, 1),
@@ -52,7 +53,7 @@ INSERT INTO sys_menu (id, parent_id, name, perms, type, order_num, status) VALUE
 -- ------------------------------------------------------------
 -- 3.1 系统管理员（role_id=1）：拥有全部按钮权限
 INSERT INTO sys_role_menu (role_id, menu_id) VALUES
-(1,100),(1,101),(1,102),(1,103),(1,104),
+(1,100),(1,101),(1,102),(1,103),(1,104),(1,105),
 (1,110),(1,111),(1,112),(1,113),
 (1,120),(1,121),(1,122),(1,123),
 (1,130),(1,131),(1,132),(1,133),

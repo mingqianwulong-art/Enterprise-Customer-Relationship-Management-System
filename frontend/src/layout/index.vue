@@ -108,7 +108,7 @@
 
           <el-dropdown trigger="click" @command="handleCommand">
             <div class="user-info">
-              <el-avatar :size="32" icon="UserFilled" />
+              <el-avatar :size="32" :src="avatarUrl" icon="UserFilled" />
               <span class="user-name">
                 {{ userStore.userInfo?.realName || userStore.userInfo?.username || '未登录' }}
               </span>
@@ -147,6 +147,12 @@ const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
+
+/** 右上角头像地址（与个人信息页共享同一数据源） */
+const avatarUrl = computed(() => {
+  const avatar = userStore.userInfo?.avatar
+  return avatar ? '/api' + avatar : ''
+})
 
 const currentRoute = computed(() => route)
 

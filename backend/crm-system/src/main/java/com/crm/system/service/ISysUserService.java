@@ -103,4 +103,21 @@ public interface ISysUserService extends IService<SysUser> {
      * @return 用户ID列表
      */
     java.util.List<Long> getUserIdsByDeptIds(java.util.List<Long> deptIds);
+
+    /**
+     * 查询用户已分配的角色ID列表
+     *
+     * @param userId 用户ID
+     * @return 角色ID列表
+     */
+    java.util.List<Long> getUserRoleIds(Long userId);
+
+    /**
+     * 分配角色（先删后增，事务）
+     *
+     * @param userId  用户ID
+     * @param roleIds 角色ID列表
+     * @return 是否成功
+     */
+    boolean assignRoles(Long userId, java.util.List<Long> roleIds);
 }

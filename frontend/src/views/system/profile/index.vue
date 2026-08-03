@@ -221,6 +221,10 @@ async function handleUpload(options: UploadRequestOptions) {
     await updateUser({ id: form.id, avatar: avatarPath })
     user.value.avatar = avatarPath
     form.avatar = avatarPath
+    // 同步更新全局 store，右上角头像随之刷新
+    if (userStore.userInfo) {
+      userStore.userInfo.avatar = avatarPath
+    }
     ElMessage.success('头像更新成功')
   } catch {
     // 错误已由请求拦截器统一提示

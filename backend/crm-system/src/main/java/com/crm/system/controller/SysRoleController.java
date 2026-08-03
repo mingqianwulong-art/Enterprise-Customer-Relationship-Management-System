@@ -97,6 +97,6 @@ public class SysRoleController {
     @Operation(summary = "查询所有角色（下拉选择）")
     @GetMapping("/list")
     public R list() {
-        return R.ok(roleService.list(new LambdaQueryWrapper<SysRole>().eq(SysRole::getStatus, "0")));
+        return R.ok(roleService.list(new LambdaQueryWrapper<SysRole>().eq(SysRole::getStatus, 1)));
     }
 }

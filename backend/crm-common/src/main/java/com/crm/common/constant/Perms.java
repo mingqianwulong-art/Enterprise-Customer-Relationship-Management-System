@@ -15,6 +15,7 @@ public class Perms {
     public static final String USER_EDIT = "system:user:edit";
     public static final String USER_DELETE = "system:user:delete";
     public static final String USER_RESET = "system:user:reset";
+    public static final String USER_ASSIGN = "system:user:assign";
 
     // 角色管理
     public static final String ROLE_LIST = "system:role:list";
