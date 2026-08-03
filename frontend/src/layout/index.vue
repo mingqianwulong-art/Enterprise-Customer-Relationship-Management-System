@@ -31,6 +31,7 @@
                 v-for="child in item.children"
                 :key="child.path"
                 :index="child.path"
+                :class="{ 'menu-disabled': isMenuDisabled(child.path) }"
               >
                 <el-icon v-if="child.meta?.icon">
                   <component :is="child.meta.icon" />
@@ -39,7 +40,7 @@
               </el-menu-item>
             </el-sub-menu>
             <!-- 无子菜单 -->
-            <el-menu-item v-else :index="item.path">
+            <el-menu-item v-else :index="item.path" :class="{ 'menu-disabled': isMenuDisabled(item.path) }">
               <el-icon v-if="item.meta?.icon">
                 <component :is="item.meta.icon" />
               </el-icon>
@@ -147,6 +148,7 @@ const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
+const { isMenuDisabled } = userStore
 
 /** 右上角头像地址（与个人信息页共享同一数据源） */
 const avatarUrl = computed(() => {
@@ -246,6 +248,11 @@ const menuList = computed(() => {
 
 /** 菜单点击导航 */
 function handleMenuSelect(index: string) {
+  // 停用菜单拦截：仅提示，不跳转
+  if (isMenuDisabled(index)) {
+    ElMessage.warning('该功能已被停用')
+    return
+  }
   router.push(index)
 }
 
@@ -391,6 +398,15 @@ onUnmounted(() => {
   height: calc(100vh - 56px);
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+/* 停用菜单：灰色显示，鼠标禁止样式 */
+.aside-menu :deep(.menu-disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.aside-menu :deep(.menu-disabled:hover) {
+  background-color: transparent !important;
 }
 
 /* 顶部栏 */

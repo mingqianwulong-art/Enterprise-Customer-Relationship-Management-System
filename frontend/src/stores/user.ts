@@ -13,6 +13,7 @@ export const useUserStore = defineStore('user', () => {
   let initialPermissions: string[] = []
   let initialRoles: string[] = []
   let initialMenus: any[] = []
+  let initialDisabledPaths: string[] = []
   if (cachedUserInfo) {
     try {
       const parsed = JSON.parse(cachedUserInfo)
@@ -20,6 +21,7 @@ export const useUserStore = defineStore('user', () => {
       initialPermissions = parsed.permissions || []
       initialRoles = parsed.roles || []
       initialMenus = parsed.menus || []
+      initialDisabledPaths = parsed.disabledPaths || []
     } catch {
       // 缓存损坏，忽略
     }
@@ -28,6 +30,8 @@ export const useUserStore = defineStore('user', () => {
   const permissions = ref<string[]>(initialPermissions)
   const roles = ref<string[]>(initialRoles)
   const menus = ref<any[]>(initialMenus)
+  // 已停用的菜单路径集合（左侧导航栏点击时拦截并提示"该功能已被停用"）
+  const disabledPaths = ref<string[]>(initialDisabledPaths)
 
   /** 登录 */
   async function loginAction(data: { username: string; password: string }) {
@@ -43,6 +47,7 @@ export const useUserStore = defineStore('user', () => {
     permissions.value = infoData.permissions || []
     roles.value = infoData.roles || []
     menus.value = infoData.menus || []
+    disabledPaths.value = infoData.disabledPaths || []
     localStorage.setItem('userInfo', JSON.stringify(infoData))
     return true
   }
@@ -55,6 +60,7 @@ export const useUserStore = defineStore('user', () => {
     permissions.value = infoData.permissions || []
     roles.value = infoData.roles || []
     menus.value = infoData.menus || []
+    disabledPaths.value = infoData.disabledPaths || []
     localStorage.setItem('userInfo', JSON.stringify(infoData))
   }
 
@@ -68,11 +74,17 @@ export const useUserStore = defineStore('user', () => {
       permissions.value = []
       roles.value = []
       menus.value = []
+      disabledPaths.value = []
       localStorage.removeItem('token')
       localStorage.removeItem('userInfo')
       router.push('/login')
     }
   }
 
-  return { token, userInfo, permissions, roles, menus, loginAction, logoutAction, fetchUserInfo }
+  /** 判断指定菜单路径是否已停用 */
+  function isMenuDisabled(path: string): boolean {
+    return disabledPaths.value.includes(path)
+  }
+
+  return { token, userInfo, permissions, roles, menus, disabledPaths, loginAction, logoutAction, fetchUserInfo, isMenuDisabled }
 })

@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { ElMessage } from 'element-plus'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -214,6 +215,12 @@ router.beforeEach(async (to, _from, next) => {
       next('/login')
       return
     }
+  }
+  // 拦截直接访问停用菜单的 URL（防绕过左侧导航栏点击）
+  if (userStore.isMenuDisabled(to.path)) {
+    ElMessage.warning('该功能已被停用')
+    next('/dashboard')
+    return
   }
   next()
 })

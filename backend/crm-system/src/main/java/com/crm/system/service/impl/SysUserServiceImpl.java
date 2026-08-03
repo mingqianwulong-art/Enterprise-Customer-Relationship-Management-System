@@ -227,6 +227,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         Set<String> permissions = menuService.getPermissionsByUserId(userId);
         // 菜单树
         List<MenuTreeVO> menus = menuService.getMenuTreeByUserId(userId);
+        // 已停用的菜单路径（前端用于拦截点击并提示"该功能已被停用"）
+        Set<String> disabledPaths = menuService.getDisabledPaths();
         // 从 SecurityContext 获取登录时已计算好的数据范围
         LoginUser loginUser = SecurityUtils.getCurrentUser();
         Integer dataScope = loginUser != null ? loginUser.getDataScope() : null;
@@ -237,6 +239,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         vo.setPermissions(permissions);
         vo.setMenus(menus);
         vo.setDataScope(dataScope);
+        vo.setDisabledPaths(disabledPaths);
         return vo;
     }
 

@@ -28,4 +28,7 @@ public class LoginUserVO {
 
     /** 数据范围（1本人 2本部门 3本部门及下 4全部） */
     private Integer dataScope;
+
+    /** 已停用的菜单路径集合（前端用于拦截点击并提示"该功能已被停用"） */
+    private Set<String> disabledPaths;
 }

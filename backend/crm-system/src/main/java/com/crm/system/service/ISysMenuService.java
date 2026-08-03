@@ -36,4 +36,12 @@ public interface ISysMenuService extends IService<SysMenu> {
      * @return 菜单树
      */
     List<MenuTreeVO> getAllMenuTree();
+
+    /**
+     * 查询所有已停用（status=0）的菜单路径集合（type=2 菜单）
+     * 用于前端拦截点击并提示"该功能已被停用"
+     *
+     * @return 停用菜单路径集合
+     */
+    Set<String> getDisabledPaths();
 }

@@ -86,6 +86,21 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     }
 
     /**
+     * 查询所有已停用（status=0）的菜单路径集合（仅 type=2 菜单）
+     * 前端左侧导航栏据此拦截点击并提示"该功能已被停用"
+     */
+    @Override
+    public Set<String> getDisabledPaths() {
+        List<SysMenu> menus = baseMapper.selectList(new LambdaQueryWrapper<SysMenu>()
+                .eq(SysMenu::getStatus, 0)
+                .eq(SysMenu::getType, 2));
+        return menus.stream()
+                .map(SysMenu::getPath)
+                .filter(p -> p != null && !p.isEmpty())
+                .collect(Collectors.toSet());
+    }
+
+    /**
      * 新增菜单（同级下同类型不允许重名）
      */
     @Override
