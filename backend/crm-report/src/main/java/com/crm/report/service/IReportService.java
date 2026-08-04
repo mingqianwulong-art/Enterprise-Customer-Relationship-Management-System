@@ -80,4 +80,13 @@ public interface IReportService {
      * @return 是否触发成功
      */
     boolean triggerRetention(Long customerId);
+
+    /**
+     * 渠道投入产出比（ROI）报表
+     * <p>
+     * 统计每个渠道的线索数、转化数、投放成本、成交金额、获客成本、ROI
+     *
+     * @return 渠道ROI列表
+     */
+    List<Map<String, Object>> getChannelRoiStats();
 }

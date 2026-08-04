@@ -283,6 +283,34 @@ public interface ReportMapper {
     @Select("SELECT owner_id FROM cus_customer WHERE id = #{customerId} AND deleted = 0")
     Long getCustomerOwnerId(@Param("customerId") Long customerId);
 
+    // ==================== 渠道投入产出比（ROI） ====================
+
+    @Select("<script>" +
+            "SELECT ch.id AS channelId, ch.channel_name AS channelName, ch.channel_type AS channelType, " +
+            "ch.cost AS cost, " +
+            "COUNT(DISTINCT cl.id) AS clueCount, " +
+            "COUNT(DISTINCT CASE WHEN cl.status = 2 THEN cl.id END) AS convertedCount, " +
+            "COALESCE(SUM(DISTINCT ct.amount), 0) AS contractAmount, " +
+            "CASE WHEN COUNT(DISTINCT cl.id) > 0 " +
+            "  THEN ROUND(ch.cost / COUNT(DISTINCT cl.id), 2) " +
+            "  ELSE 0 END AS costPerClue, " +
+            "CASE WHEN ch.cost > 0 " +
+            "  THEN ROUND(COALESCE(SUM(DISTINCT ct.amount), 0) / ch.cost, 2) " +
+            "  ELSE 0 END AS roi " +
+            "FROM market_channel ch " +
+            "LEFT JOIN market_clue cl ON cl.channel_id = ch.id AND cl.deleted = 0 " +
+            "<if test='ownerIds != null'>AND cl.owner_id IN " +
+            "<foreach collection='ownerIds' item='id' open='(' separator=',' close=')'>#{id}</foreach></if>" +
+            "LEFT JOIN cus_customer cu ON cu.id = cl.customer_id AND cu.deleted = 0 " +
+            "LEFT JOIN bus_contract ct ON ct.customer_id = cu.id AND ct.deleted = 0 " +
+            "<if test='ownerIds != null'>AND ct.owner_id IN " +
+            "<foreach collection='ownerIds' item='id' open='(' separator=',' close=')'>#{id}</foreach></if>" +
+            "WHERE ch.deleted = 0 " +
+            "GROUP BY ch.id, ch.channel_name, ch.channel_type, ch.cost " +
+            "ORDER BY roi DESC" +
+            "</script>")
+    List<java.util.Map<String, Object>> getChannelRoiStats(@Param("ownerIds") List<Long> ownerIds);
+
     /**
      * 插入挽留提醒消息到 sys_message 表
      */

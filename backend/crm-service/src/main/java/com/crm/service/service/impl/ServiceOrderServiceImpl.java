@@ -10,6 +10,7 @@ import com.crm.service.mapper.ServiceOrderMapper;
 import com.crm.service.service.IServiceOrderService;
 import com.crm.service.vo.OrderPageDTO;
 import com.crm.system.service.DataPermissionService;
+import com.crm.system.service.ISysMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,6 +38,9 @@ public class ServiceOrderServiceImpl extends ServiceImpl<ServiceOrderMapper, Ser
 
     @Autowired
     private DataPermissionService dataPermissionService;
+
+    @Autowired
+    private ISysMessageService messageService;
 
     /**
      * 分页查询工单
@@ -78,6 +82,7 @@ public class ServiceOrderServiceImpl extends ServiceImpl<ServiceOrderMapper, Ser
 
     /**
      * 新增工单（自动生成工单编号 WO+yyyyMMdd+3位序号）
+     * 紧急工单自动分配给当前待处理工单最少的售后人员
      */
     @Override
     public boolean addOrder(ServiceOrder order) {
@@ -92,7 +97,48 @@ public class ServiceOrderServiceImpl extends ServiceImpl<ServiceOrderMapper, Ser
         if (order.getStatus() == null) {
             order.setStatus(0);
         }
+        // 紧急（priority=1）且未指定处理人时，自动分配给负载最低的售后人员
+        if (order.getPriority() != null && order.getPriority() == 1 && order.getAssigneeId() == null) {
+            autoAssignOrder(order);
+        }
         return baseMapper.insert(order) > 0;
+    }
+
+    /**
+     * 自动分配工单：查询待处理工单最少的售后人员
+     */
+    private void autoAssignOrder(ServiceOrder order) {
+        try {
+            LambdaQueryWrapper<ServiceOrder> pendingWrapper = new LambdaQueryWrapper<ServiceOrder>()
+                    .in(ServiceOrder::getStatus, 0, 1)
+                    .isNotNull(ServiceOrder::getAssigneeId)
+                    .select(ServiceOrder::getAssigneeId, ServiceOrder::getAssigneeName);
+            List<ServiceOrder> assigned = baseMapper.selectList(pendingWrapper);
+            if (assigned.isEmpty()) {
+                return; // 无可用售后人员，保持待分配状态
+            }
+            // 按处理人分组统计待处理数量，找负载最低的
+            Map<Long, Long> workload = assigned.stream()
+                    .filter(o -> o.getAssigneeId() != null)
+                    .collect(Collectors.groupingBy(ServiceOrder::getAssigneeId, Collectors.counting()));
+            Long assigneeId = workload.entrySet().stream()
+                    .min(Map.Entry.comparingByValue())
+                    .map(Map.Entry::getKey)
+                    .orElse(null);
+            if (assigneeId != null) {
+                // 找到对应的姓名
+                String assigneeName = assigned.stream()
+                        .filter(o -> assigneeId.equals(o.getAssigneeId()))
+                        .map(ServiceOrder::getAssigneeName)
+                        .findFirst()
+                        .orElse(null);
+                order.setAssigneeId(assigneeId);
+                order.setAssigneeName(assigneeName);
+                order.setStatus(1); // 自动分配后置为处理中
+            }
+        } catch (Exception e) {
+            // 自动分配失败不影响工单创建，保持待处理状态由人工分配
+        }
     }
 
     /**
@@ -131,7 +177,7 @@ public class ServiceOrderServiceImpl extends ServiceImpl<ServiceOrderMapper, Ser
     }
 
     /**
-     * 修改工单状态（若改为已完成则设置解决时间）
+     * 修改工单状态（若改为已完成则设置解决时间并推送满意度调研通知）
      */
     @Override
     public boolean changeStatus(Long id, Integer status) {
@@ -142,9 +188,24 @@ public class ServiceOrderServiceImpl extends ServiceImpl<ServiceOrderMapper, Ser
         ServiceOrder update = new ServiceOrder();
         update.setId(id);
         update.setStatus(status);
-        // 状态改为已完成（3）时记录解决时间
+        // 状态改为已完成（3）时记录解决时间并推送满意度调研通知
         if (STATUS_DONE == status) {
             update.setResolveTime(LocalDateTime.now());
+            // 推送满意度调研通知给工单创建人
+            try {
+                String content = String.format(
+                        "工单【%s】已处理完成，请对本次服务进行满意度评价。",
+                        order.getOrderNo());
+                messageService.sendMessage(
+                        order.getCreatorId() != null ? order.getCreatorId() : order.getAssigneeId(),
+                        "满意度调研：" + order.getOrderNo(),
+                        content,
+                        3,
+                        id,
+                        "service-order");
+            } catch (Exception e) {
+                // 推送失败不影响状态变更
+            }
         }
         return baseMapper.updateById(update) > 0;
     }

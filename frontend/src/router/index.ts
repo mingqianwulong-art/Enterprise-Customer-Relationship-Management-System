@@ -65,6 +65,12 @@ const router = createRouter({
           meta: { title: '操作日志', icon: 'List', perms: 'system:log:list' }
         },
         {
+          path: 'system/message',
+          name: 'SystemMessage',
+          component: () => import('@/views/system/message/index.vue'),
+          meta: { title: '消息中心', icon: 'Bell' }
+        },
+        {
           path: 'system/profile',
           name: 'SystemProfile',
           component: () => import('@/views/system/profile/index.vue'),

@@ -19,8 +19,8 @@ import java.util.Date;
 @Component
 public class JwtUtils {
 
-    /** 密钥（从配置注入，默认值用于开发环境） */
-    @Value("${jwt.secret:crm-secret-key-2024-very-long}")
+    /** 密钥（必须通过环境变量或配置文件注入，不再提供硬编码默认值） */
+    @Value("${jwt.secret}")
     private String secret;
 
     /** 过期时间（分钟） */
@@ -32,6 +32,14 @@ public class JwtUtils {
 
     @PostConstruct
     public void init() {
+        if (secret == null || secret.trim().isEmpty()) {
+            throw new IllegalStateException(
+                    "JWT 密钥未配置！请通过环境变量 JWT_SECRET 或配置文件 jwt.secret 设置（至少32字符）");
+        }
+        if (secret.length() < 32) {
+            throw new IllegalStateException(
+                    "JWT 密钥长度不足32字符，存在安全隐患，请使用更长的密钥");
+        }
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 

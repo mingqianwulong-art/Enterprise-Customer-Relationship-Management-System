@@ -128,4 +128,17 @@ public class ReportController {
     public R triggerRetention(@PathVariable Long customerId) {
         return reportService.triggerRetention(customerId) ? R.ok("挽留提醒已发送至负责人") : R.fail("触发失败，客户不存在或无负责人");
     }
+
+    /**
+     * 渠道投入产出比（ROI）报表
+     * <p>
+     * 统计每个渠道的线索数、转化数、投放成本、成交金额、获客成本、ROI，
+     * 支持数据权限过滤，辅助管理者动态调整市场活动资源投入。
+     */
+    @Operation(summary = "渠道投入产出比（ROI）报表")
+    @PreAuthorize("hasAuthority('" + Perms.REPORT_DASHBOARD_LIST + "')")
+    @GetMapping("/channel-roi")
+    public R<List<Map<String, Object>>> getChannelRoiStats() {
+        return R.ok(reportService.getChannelRoiStats());
+    }
 }

@@ -168,4 +168,29 @@ public class ClueServiceImpl extends ServiceImpl<ClueMapper, Clue> implements IC
         update.setStatus(2);
         return baseMapper.updateById(update) > 0;
     }
+
+    /**
+     * 退回线索（重置为待分配状态，清空负责人）
+     * 使用条件更新（WHERE status=1）防止重复退回
+     */
+    @Override
+    public boolean returnClue(Long clueId) {
+        Clue clue = baseMapper.selectById(clueId);
+        if (clue == null) {
+            throw new BusinessException("线索不存在");
+        }
+        if (clue.getStatus() == null || clue.getStatus() != 1) {
+            throw new BusinessException("仅已分配状态的线索可退回");
+        }
+        LambdaUpdateWrapper<Clue> wrapper = new LambdaUpdateWrapper<Clue>()
+                .eq(Clue::getId, clueId)
+                .eq(Clue::getStatus, 1)
+                .set(Clue::getOwnerId, null)
+                .set(Clue::getStatus, 0);
+        int rows = baseMapper.update(null, wrapper);
+        if (rows == 0) {
+            throw new BusinessException("线索状态已变更，请刷新后重试");
+        }
+        return true;
+    }
 }

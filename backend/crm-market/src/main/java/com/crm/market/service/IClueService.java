@@ -70,4 +70,12 @@ public interface IClueService extends IService<Clue> {
      * @return 是否成功
      */
     boolean convertClue(Long clueId, Long customerId);
+
+    /**
+     * 退回线索（重置为待分配状态，清空负责人）
+     *
+     * @param clueId 线索ID
+     * @return 是否成功
+     */
+    boolean returnClue(Long clueId);
 }

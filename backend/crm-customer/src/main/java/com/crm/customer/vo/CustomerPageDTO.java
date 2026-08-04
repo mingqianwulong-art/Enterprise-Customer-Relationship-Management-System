@@ -30,4 +30,7 @@ public class CustomerPageDTO {
 
     /** 客户等级（1普通 2重要 3VIP） */
     private Integer customerLevel;
+
+    /** 标签ID（按标签筛选客户） */
+    private Long tagId;
 }

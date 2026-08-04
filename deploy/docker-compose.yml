@@ -63,8 +63,12 @@ services:
       SMS_ACCESS_KEY_SECRET: ${SMS_ACCESS_KEY_SECRET:-}
       SMS_SIGN_NAME: ${SMS_SIGN_NAME:-}
       SMS_TEMPLATE_CODE: ${SMS_TEMPLATE_CODE:-}
-      # JWT 密钥（生产环境请通过 .env 覆盖）
-      JWT_SECRET: ${JWT_SECRET:-crm-secret-key-2024-very-long-secure-string-at-least-32-chars}
+      # JWT 密钥（必须通过 .env 设置，不再提供硬编码默认值）
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required, please set it in .env file}
+      # CORS 允许的前端来源
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:5173,http://localhost:3000}
+      # 外部 API Key
+      CRM_EXTERNAL_API_KEY: ${CRM_EXTERNAL_API_KEY:-}
       TZ: Asia/Shanghai
     ports:
       - "8080:8080"

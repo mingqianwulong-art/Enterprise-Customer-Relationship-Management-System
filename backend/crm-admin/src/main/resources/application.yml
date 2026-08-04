@@ -31,8 +31,14 @@ mybatis-plus:
       logic-not-delete-value: 0
 
 jwt:
-  secret: crm-secret-key-2024-very-long-secure-string-at-least-32-chars
+  # 密钥从环境变量 JWT_SECRET 读取，禁止硬编码
+  secret: ${JWT_SECRET}
   expire: 1440
+
+# CORS 跨域配置（生产环境应限制为前端域名）
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://localhost:3000}
+  allow-credentials: true
 
 springdoc:
   swagger-ui:

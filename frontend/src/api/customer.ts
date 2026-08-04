@@ -42,6 +42,23 @@ export function getPoolPage(params: any) {
   return request({ url: '/customer/pool/page', method: 'get', params })
 }
 
+// ==================== 跟进记录 ====================
+
+/** 新增跟进记录 */
+export function addFollowRecord(data: any) {
+  return request({ url: '/customer/follow', method: 'post', data })
+}
+
+/** 查询客户跟进记录 */
+export function getFollowListByCustomer(customerId: number) {
+  return request({ url: `/customer/follow/list/${customerId}`, method: 'get' })
+}
+
+/** 今日待跟进列表 */
+export function getTodayPendingFollow() {
+  return request({ url: '/customer/follow/today', method: 'get' })
+}
+
 // ==================== 标签管理 ====================
 
 /** 查询全部标签 */

@@ -21,6 +21,8 @@ import com.crm.system.service.DataPermissionService;
 import com.crm.customer.service.ICustomerService;
 import com.crm.customer.vo.CustomerPageDTO;
 import com.crm.customer.vo.CustomerVO;
+import com.crm.system.entity.SysUser;
+import com.crm.system.mapper.SysUserMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,6 +55,9 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
     @Autowired
     private DataPermissionService dataPermissionService;
 
+    @Autowired
+    private SysUserMapper sysUserMapper;
+
     /**
      * 分页查询客户
      */
@@ -71,6 +76,11 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
                 .eq(dto.getCustomerLevel() != null,
                         Customer::getCustomerLevel, dto.getCustomerLevel())
                 .orderByDesc(Customer::getCreateTime);
+        // 按标签筛选：通过子查询匹配 cus_customer_tag 关联表
+        if (dto.getTagId() != null) {
+            wrapper.inSql(Customer::getId,
+                    "SELECT customer_id FROM cus_customer_tag WHERE tag_id = " + dto.getTagId());
+        }
         // 应用数据权限：按当前用户 dataScope 过滤可见的 owner_id
         List<Long> visibleOwnerIds = dataPermissionService.getVisibleOwnerIds();
         if (visibleOwnerIds != null) {
@@ -100,6 +110,14 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
 
         CustomerVO vo = new CustomerVO();
         BeanUtils.copyProperties(customer, vo);
+
+        // 查询负责人姓名
+        if (customer.getOwnerId() != null) {
+            SysUser owner = sysUserMapper.selectById(customer.getOwnerId());
+            if (owner != null) {
+                vo.setOwnerName(owner.getRealName());
+            }
+        }
 
         // 查联系人
         List<Contact> contacts = contactMapper.selectList(

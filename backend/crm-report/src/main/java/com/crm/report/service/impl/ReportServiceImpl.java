@@ -230,4 +230,14 @@ public class ReportServiceImpl implements IReportService {
         String content = "您负责的客户（ID：" + customerId + "）已长时间未跟进，存在流失风险，请尽快安排联系。";
         return reportMapper.insertMessage(ownerId, title, content, customerId, "churn_risk") > 0;
     }
+
+    /**
+     * 渠道投入产出比（ROI）报表
+     * <p>
+     * 应用数据权限过滤，仅统计当前用户可见范围内的数据
+     */
+    @Override
+    public List<Map<String, Object>> getChannelRoiStats() {
+        return reportMapper.getChannelRoiStats(dataPermissionService.getVisibleOwnerIds());
+    }
 }

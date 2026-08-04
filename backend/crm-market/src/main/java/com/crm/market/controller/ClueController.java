@@ -120,6 +120,17 @@ public class ClueController {
     }
 
     /**
+     * 退回线索（重置为待分配状态）
+     */
+    @Operation(summary = "退回线索")
+    @Log("退回线索")
+    @PreAuthorize("hasAuthority('" + Perms.CLUE_CLAIM + "')")
+    @PutMapping("/{id}/return")
+    public R returnClue(@PathVariable Long id) {
+        return clueService.returnClue(id) ? R.ok("退回成功") : R.fail("退回失败");
+    }
+
+    /**
      * 自动分配线索（手动触发规则引擎）
      */
     @Operation(summary = "自动分配线索")

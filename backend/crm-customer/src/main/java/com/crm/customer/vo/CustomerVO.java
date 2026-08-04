@@ -18,6 +18,9 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class CustomerVO extends Customer {
 
+    /** 负责人姓名 */
+    private String ownerName;
+
     /** 联系人列表 */
     private List<Contact> contacts;
 
