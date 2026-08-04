@@ -62,7 +62,7 @@ const router = createRouter({
           path: 'system/log',
           name: 'SystemLog',
           component: () => import('@/views/system/log/index.vue'),
-          meta: { title: '操作日志', icon: 'List' }
+          meta: { title: '操作日志', icon: 'List', perms: 'system:log:list' }
         },
         {
           path: 'system/profile',
@@ -81,107 +81,107 @@ const router = createRouter({
           path: 'market/clue',
           name: 'MarketClue',
           component: () => import('@/views/market/clue/index.vue'),
-          meta: { title: '线索池', icon: 'Aim' }
+          meta: { title: '线索池', icon: 'Aim', perms: 'market:clue:list' }
         },
         {
           path: 'market/channel',
           name: 'MarketChannel',
           component: () => import('@/views/market/channel/index.vue'),
-          meta: { title: '渠道管理', icon: 'Share' }
+          meta: { title: '渠道管理', icon: 'Share', perms: 'market:channel:list' }
         },
         {
           path: 'market/knowledge',
           name: 'MarketKnowledge',
           component: () => import('@/views/market/knowledge/index.vue'),
-          meta: { title: '知识库', icon: 'Document' }
+          meta: { title: '知识库', icon: 'Document', perms: 'market:knowledge:list' }
         },
         // 客户管理
         {
           path: 'customer/list',
           name: 'CustomerList',
           component: () => import('@/views/customer/list/index.vue'),
-          meta: { title: '客户列表', icon: 'UserFilled' }
+          meta: { title: '客户列表', icon: 'UserFilled', perms: 'customer:customer:list' }
         },
         {
           path: 'customer/detail/:id',
           name: 'CustomerDetail',
           component: () => import('@/views/customer/detail/index.vue'),
-          meta: { title: '客户详情', hidden: true }
+          meta: { title: '客户详情', hidden: true, perms: 'customer:customer:list' }
         },
         {
           path: 'customer/pool',
           name: 'CustomerPool',
           component: () => import('@/views/customer/pool/index.vue'),
-          meta: { title: '公海池', icon: 'Box' }
+          meta: { title: '公海池', icon: 'Box', perms: 'customer:customer:list' }
         },
         {
           path: 'customer/tag',
           name: 'CustomerTag',
           component: () => import('@/views/customer/tag/index.vue'),
-          meta: { title: '标签管理', icon: 'PriceTag' }
+          meta: { title: '标签管理', icon: 'PriceTag', perms: 'customer:customer:list' }
         },
         // 商机销售
         {
           path: 'business/opportunity',
           name: 'BizOpportunity',
           component: () => import('@/views/business/opportunity/index.vue'),
-          meta: { title: '商机管理', icon: 'Trophy' }
+          meta: { title: '商机管理', icon: 'Trophy', perms: 'business:opportunity:list' }
         },
         {
           path: 'business/contract',
           name: 'BizContract',
           component: () => import('@/views/business/contract/index.vue'),
-          meta: { title: '合同管理', icon: 'Document' }
+          meta: { title: '合同管理', icon: 'Document', perms: 'business:contract:list' }
         },
         {
           path: 'business/payment',
           name: 'BizPayment',
           component: () => import('@/views/business/payment/index.vue'),
-          meta: { title: '回款管理', icon: 'Money' }
+          meta: { title: '回款管理', icon: 'Money', perms: 'business:payment:list' }
         },
         {
           path: 'business/funnel',
           name: 'BizFunnel',
           component: () => import('@/views/business/funnel/index.vue'),
-          meta: { title: '销售漏斗', icon: 'TrendCharts' }
+          meta: { title: '销售漏斗', icon: 'TrendCharts', perms: 'business:opportunity:list' }
         },
         {
           path: 'business/sign-in',
           name: 'BizSignIn',
           component: () => import('@/views/business/sign-in/index.vue'),
-          meta: { title: '外勤签到', icon: 'Location' }
+          meta: { title: '外勤签到', icon: 'Location', perms: 'business:sign-in:list' }
         },
         // 售后服务
         {
           path: 'service/order',
           name: 'ServiceOrder',
           component: () => import('@/views/service/order/index.vue'),
-          meta: { title: '工单管理', icon: 'Ticket' }
+          meta: { title: '工单管理', icon: 'Ticket', perms: 'service:order:list' }
         },
         {
           path: 'service/record',
           name: 'ServiceRecord',
           component: () => import('@/views/service/record/index.vue'),
-          meta: { title: '售后记录', icon: 'Files' }
+          meta: { title: '售后记录', icon: 'Files', perms: 'service:record:list' }
         },
         // 数据分析
         {
           path: 'report/dashboard',
           name: 'ReportDashboard',
           component: () => import('@/views/report/dashboard/index.vue'),
-          meta: { title: '数据看板', icon: 'DataAnalysis' }
+          meta: { title: '数据看板', icon: 'DataAnalysis', perms: 'report:dashboard:list' }
         },
         {
           path: 'report/custom',
           name: 'ReportCustom',
           component: () => import('@/views/report/custom/index.vue'),
-          meta: { title: '自定义报表', icon: 'Histogram' }
+          meta: { title: '自定义报表', icon: 'Histogram', perms: 'report:custom:list' }
         },
         {
           path: 'report/forecast',
           name: 'ReportForecast',
           component: () => import('@/views/report/forecast/index.vue'),
-          meta: { title: '预测分析', icon: 'MagicStick' }
+          meta: { title: '预测分析', icon: 'MagicStick', perms: 'report:forecast:list' }
         }
       ]
     }

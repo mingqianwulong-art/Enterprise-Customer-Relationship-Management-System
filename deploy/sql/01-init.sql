@@ -49,8 +49,7 @@ CREATE TABLE sys_user (
   update_by       VARCHAR(50)  DEFAULT '' COMMENT '更新人',
   update_time     DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   deleted         TINYINT      DEFAULT 0 COMMENT '逻辑删除',
-  PRIMARY KEY (id),
-  UNIQUE KEY uk_username (username)
+  PRIMARY KEY (id)
 ) ENGINE=InnoDB COMMENT='用户表';
 
 -- 2.3 角色表

@@ -1,11 +1,13 @@
 package com.crm.customer.controller;
 
 import com.crm.common.api.R;
+import com.crm.common.constant.Perms;
 import com.crm.customer.entity.Tag;
 import com.crm.customer.service.ITagService;
 import com.crm.system.annotation.Log;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +34,7 @@ public class TagController {
      * 查全部标签
      */
     @Operation(summary = "查询全部标签")
+    @PreAuthorize("hasAuthority('" + Perms.CUSTOMER_TAG_LIST + "')")
     @GetMapping("/list")
     public R listAll() {
         return R.ok(tagService.listAll());
@@ -42,6 +45,7 @@ public class TagController {
      */
     @Operation(summary = "新增标签")
     @Log("新增标签")
+    @PreAuthorize("hasAuthority('" + Perms.CUSTOMER_TAG_ADD + "')")
     @PostMapping
     public R add(@RequestBody Tag tag) {
         return tagService.addTag(tag) ? R.ok("新增标签成功") : R.fail("新增标签失败");
@@ -51,6 +55,7 @@ public class TagController {
      * 修改标签
      */
     @Operation(summary = "修改标签")
+    @PreAuthorize("hasAuthority('" + Perms.CUSTOMER_TAG_EDIT + "')")
     @PutMapping
     public R update(@RequestBody Tag tag) {
         return tagService.updateTag(tag) ? R.ok("修改标签成功") : R.fail("修改标签失败");
@@ -60,6 +65,7 @@ public class TagController {
      * 删除标签
      */
     @Operation(summary = "删除标签")
+    @PreAuthorize("hasAuthority('" + Perms.CUSTOMER_TAG_DELETE + "')")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return tagService.deleteTag(id) ? R.ok("删除标签成功") : R.fail("删除标签失败");

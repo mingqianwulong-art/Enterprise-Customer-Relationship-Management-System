@@ -3,10 +3,12 @@ package com.crm.business.controller;
 import com.crm.business.entity.SignIn;
 import com.crm.business.mapper.SignInMapper;
 import com.crm.common.api.R;
+import com.crm.common.constant.Perms;
 import com.crm.common.security.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -34,6 +36,7 @@ public class SignInController {
      * 签到打卡
      */
     @Operation(summary = "签到打卡")
+    @PreAuthorize("hasAuthority('" + Perms.SIGN_IN_ADD + "')")
     @PostMapping
     public R<SignIn> signIn(@RequestBody SignIn signIn) {
         Long userId = SecurityUtils.getCurrentUserIdRequired();
@@ -48,6 +51,7 @@ public class SignInController {
      * 查询今日签到记录
      */
     @Operation(summary = "查询今日签到记录")
+    @PreAuthorize("hasAuthority('" + Perms.SIGN_IN_LIST + "')")
     @GetMapping("/today")
     public R<List<SignIn>> getTodaySignIn() {
         Long userId = SecurityUtils.getCurrentUserIdRequired();
@@ -65,6 +69,7 @@ public class SignInController {
      * 查询签到记录（分页）
      */
     @Operation(summary = "查询签到记录")
+    @PreAuthorize("hasAuthority('" + Perms.SIGN_IN_LIST + "')")
     @GetMapping
     public R<List<SignIn>> list(
             @RequestParam(required = false) String startDate,

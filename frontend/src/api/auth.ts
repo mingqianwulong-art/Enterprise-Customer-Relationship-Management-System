@@ -62,3 +62,12 @@ export function forgotPassword(data: {
   })
 }
 
+/** 修改当前用户密码 */
+export function changePassword(data: { oldPassword: string; newPassword: string }) {
+  return request({
+    url: '/auth/change-password',
+    method: 'post',
+    data
+  })
+}
+

@@ -4,6 +4,7 @@ import com.crm.report.dto.ReportQueryDTO;
 import com.crm.report.mapper.ReportMapper;
 import com.crm.report.service.IReportService;
 import com.crm.report.vo.*;
+import com.crm.system.service.DataPermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,18 +26,22 @@ public class ReportServiceImpl implements IReportService {
     @Autowired
     private ReportMapper reportMapper;
 
+    @Autowired
+    private DataPermissionService dataPermissionService;
+
     @Override
     public DashboardOverviewVO getOverview() {
         DashboardOverviewVO vo = new DashboardOverviewVO();
+        List<Long> ownerIds = dataPermissionService.getVisibleOwnerIds();
 
         // 客户
-        vo.setTotalCustomers(reportMapper.countCustomers());
-        vo.setMonthlyNewCustomers(reportMapper.countMonthlyNewCustomers());
-        vo.setPoolCustomers(reportMapper.countPoolCustomers());
+        vo.setTotalCustomers(reportMapper.countCustomers(ownerIds));
+        vo.setMonthlyNewCustomers(reportMapper.countMonthlyNewCustomers(ownerIds));
+        vo.setPoolCustomers(reportMapper.countPoolCustomers(ownerIds));
 
         // 线索
-        Long totalClues = reportMapper.countClues();
-        Long convertedClues = reportMapper.countConvertedClues();
+        Long totalClues = reportMapper.countClues(ownerIds);
+        Long convertedClues = reportMapper.countConvertedClues(ownerIds);
         vo.setTotalClues(totalClues);
         vo.setConvertedClues(convertedClues);
         if (totalClues > 0) {
@@ -48,10 +53,10 @@ public class ReportServiceImpl implements IReportService {
         }
 
         // 商机
-        Long totalOpps = reportMapper.countOpportunities();
-        Long wonOpps = reportMapper.countWonOpportunities();
+        Long totalOpps = reportMapper.countOpportunities(ownerIds);
+        Long wonOpps = reportMapper.countWonOpportunities(ownerIds);
         vo.setTotalOpportunities(totalOpps);
-        vo.setActiveOpportunities(reportMapper.countActiveOpportunities());
+        vo.setActiveOpportunities(reportMapper.countActiveOpportunities(ownerIds));
         vo.setWonOpportunities(wonOpps);
         if (totalOpps > 0) {
             vo.setWinRate(BigDecimal.valueOf(wonOpps)
@@ -62,12 +67,12 @@ public class ReportServiceImpl implements IReportService {
         }
 
         // 合同
-        vo.setTotalContracts(reportMapper.countContracts());
-        BigDecimal contractAmount = reportMapper.sumContractAmount();
+        vo.setTotalContracts(reportMapper.countContracts(ownerIds));
+        BigDecimal contractAmount = reportMapper.sumContractAmount(ownerIds);
         vo.setTotalContractAmount(contractAmount);
 
         // 回款
-        BigDecimal receivedAmount = reportMapper.sumReceivedAmount();
+        BigDecimal receivedAmount = reportMapper.sumReceivedAmount(ownerIds);
         vo.setTotalReceivedAmount(receivedAmount);
         if (contractAmount.compareTo(BigDecimal.ZERO) > 0) {
             vo.setPaymentRate(receivedAmount
@@ -78,47 +83,47 @@ public class ReportServiceImpl implements IReportService {
         }
 
         // 工单
-        vo.setTotalOrders(reportMapper.countOrders());
-        vo.setPendingOrders(reportMapper.countPendingOrders());
-        vo.setCompletedOrders(reportMapper.countCompletedOrders());
-        vo.setAvgSatisfaction(reportMapper.avgSatisfaction());
+        vo.setTotalOrders(reportMapper.countOrders(ownerIds));
+        vo.setPendingOrders(reportMapper.countPendingOrders(ownerIds));
+        vo.setCompletedOrders(reportMapper.countCompletedOrders(ownerIds));
+        vo.setAvgSatisfaction(reportMapper.avgSatisfaction(ownerIds));
 
         return vo;
     }
 
     @Override
     public List<TrendVO> getTrend(int months) {
-        return reportMapper.getTrend(months);
+        return reportMapper.getTrend(months, dataPermissionService.getVisibleOwnerIds());
     }
 
     @Override
     public List<ServiceStatsVO> getOrderStatusStats() {
-        return reportMapper.getOrderStatusStats();
+        return reportMapper.getOrderStatusStats(dataPermissionService.getVisibleOwnerIds());
     }
 
     @Override
     public List<SalesRankingVO> getSalesRanking() {
-        return reportMapper.getSalesRanking();
+        return reportMapper.getSalesRanking(dataPermissionService.getVisibleOwnerIds());
     }
 
     @Override
     public List<CustomerSourceVO> getCustomerIndustryStats() {
-        return reportMapper.getCustomerIndustryStats();
+        return reportMapper.getCustomerIndustryStats(dataPermissionService.getVisibleOwnerIds());
     }
 
     @Override
     public List<CustomerSourceVO> getClueSourceStats() {
-        return reportMapper.getClueSourceStats();
+        return reportMapper.getClueSourceStats(dataPermissionService.getVisibleOwnerIds());
     }
 
     @Override
     public List<Map<String, Object>> getCustomCustomerReport(ReportQueryDTO dto) {
-        return reportMapper.getCustomCustomerReport(dto);
+        return reportMapper.getCustomCustomerReport(dto, dataPermissionService.getVisibleOwnerIds());
     }
 
     @Override
     public List<Map<String, Object>> getCustomSalesReport(ReportQueryDTO dto) {
-        return reportMapper.getCustomSalesReport(dto);
+        return reportMapper.getCustomSalesReport(dto, dataPermissionService.getVisibleOwnerIds());
     }
 
     /**
@@ -129,7 +134,7 @@ public class ReportServiceImpl implements IReportService {
      */
     @Override
     public ForecastVO salesForecast(int forecastMonths, int historyMonths) {
-        List<TrendVO> history = reportMapper.getTrend(historyMonths);
+        List<TrendVO> history = reportMapper.getTrend(historyMonths, dataPermissionService.getVisibleOwnerIds());
         ForecastVO vo = new ForecastVO();
 
         // 预测下一个月份
@@ -189,7 +194,8 @@ public class ReportServiceImpl implements IReportService {
      */
     @Override
     public List<ChurnRiskVO> getChurnRiskCustomers(int thresholdDays) {
-        List<ChurnRiskVO> list = reportMapper.getChurnRiskCustomers(thresholdDays);
+        List<ChurnRiskVO> list = reportMapper.getChurnRiskCustomers(
+                thresholdDays, dataPermissionService.getVisibleOwnerIds());
         for (ChurnRiskVO vo : list) {
             int days = vo.getDaysSinceLastFollow() == null ? thresholdDays : vo.getDaysSinceLastFollow();
             if (days >= 90) {

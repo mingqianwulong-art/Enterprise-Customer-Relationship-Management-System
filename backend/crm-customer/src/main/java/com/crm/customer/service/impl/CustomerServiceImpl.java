@@ -68,8 +68,8 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
                         Customer::getRegion, dto.getRegion())
                 .eq(dto.getOwnerId() != null,
                         Customer::getOwnerId, dto.getOwnerId())
-                .eq(dto.getLevel() != null,
-                        Customer::getCustomerLevel, dto.getLevel())
+                .eq(dto.getCustomerLevel() != null,
+                        Customer::getCustomerLevel, dto.getCustomerLevel())
                 .orderByDesc(Customer::getCreateTime);
         // 应用数据权限：按当前用户 dataScope 过滤可见的 owner_id
         List<Long> visibleOwnerIds = dataPermissionService.getVisibleOwnerIds();
@@ -150,6 +150,8 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
             if (count > 0) {
                 throw new BusinessException("信用代码已存在，请勿重复添加");
             }
+            // 释放已逻辑删除记录占用的信用代码，允许复用
+            baseMapper.clearDeletedCreditCode(customer.getCreditCode());
         }
         // 默认不在公海
         if (customer.getInPool() == null) {
@@ -165,6 +167,16 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
     public boolean updateCustomer(Customer customer) {
         if (customer.getId() == null) {
             throw new BusinessException("客户ID不能为空");
+        }
+        if (customer.getCreditCode() != null && !customer.getCreditCode().isEmpty()) {
+            Long count = baseMapper.selectCount(
+                    new LambdaQueryWrapper<Customer>()
+                            .eq(Customer::getCreditCode, customer.getCreditCode())
+                            .ne(Customer::getId, customer.getId()));
+            if (count > 0) {
+                throw new BusinessException("信用代码已存在，请勿重复添加");
+            }
+            baseMapper.clearDeletedCreditCode(customer.getCreditCode());
         }
         return baseMapper.updateById(customer) > 0;
     }
@@ -184,7 +196,12 @@ public class CustomerServiceImpl extends ServiceImpl<CustomerMapper, Customer> i
         // 删除跟进记录
         followRecordMapper.delete(new LambdaQueryWrapper<FollowRecord>()
                 .eq(FollowRecord::getCustomerId, id));
-        return baseMapper.deleteById(id) > 0;
+        boolean deleted = baseMapper.deleteById(id) > 0;
+        if (deleted) {
+            // 释放已删除记录的信用代码，避免唯一索引阻止后续复用
+            baseMapper.clearDeletedCreditCodeById(id);
+        }
+        return deleted;
     }
 
     /**

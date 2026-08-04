@@ -23,6 +23,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- 数据权限服务（crm-system） -->
+        <dependency>
+            <groupId>com.crm</groupId>
+            <artifactId>crm-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- MyBatis-Plus -->
         <dependency>
             <groupId>com.baomidou</groupId>

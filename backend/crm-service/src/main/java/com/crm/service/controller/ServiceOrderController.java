@@ -1,12 +1,14 @@
 package com.crm.service.controller;
 
 import com.crm.common.api.R;
+import com.crm.common.constant.Perms;
 import com.crm.service.entity.ServiceOrder;
 import com.crm.service.service.IServiceOrderService;
 import com.crm.service.vo.OrderPageDTO;
 import com.crm.system.annotation.Log;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +36,7 @@ public class ServiceOrderController {
      * 分页查询工单
      */
     @Operation(summary = "分页查询工单")
+    @PreAuthorize("hasAuthority('" + Perms.SERVICE_ORDER_LIST + "')")
     @GetMapping("/page")
     public R page(OrderPageDTO dto) {
         return R.ok(orderService.page(dto));
@@ -43,6 +46,7 @@ public class ServiceOrderController {
      * 工单详情
      */
     @Operation(summary = "工单详情")
+    @PreAuthorize("hasAuthority('" + Perms.SERVICE_ORDER_LIST + "')")
     @GetMapping("/{id}")
     public R getById(@PathVariable Long id) {
         return R.ok(orderService.getById(id));
@@ -53,6 +57,7 @@ public class ServiceOrderController {
      */
     @Operation(summary = "新增工单")
     @Log("新增工单")
+    @PreAuthorize("hasAuthority('" + Perms.SERVICE_ORDER_ADD + "')")
     @PostMapping
     public R add(@RequestBody ServiceOrder order) {
         return orderService.addOrder(order) ? R.ok("新增工单成功") : R.fail("新增工单失败");
@@ -62,6 +67,7 @@ public class ServiceOrderController {
      * 修改工单
      */
     @Operation(summary = "修改工单")
+    @PreAuthorize("hasAuthority('" + Perms.SERVICE_ORDER_EDIT + "')")
     @PutMapping
     public R update(@RequestBody ServiceOrder order) {
         return orderService.updateOrder(order) ? R.ok("修改工单成功") : R.fail("修改工单失败");
@@ -72,6 +78,7 @@ public class ServiceOrderController {
      */
     @Operation(summary = "删除工单")
     @Log("删除工单")
+    @PreAuthorize("hasAuthority('" + Perms.SERVICE_ORDER_DELETE + "')")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return orderService.deleteOrder(id) ? R.ok("删除工单成功") : R.fail("删除工单失败");
@@ -81,6 +88,7 @@ public class ServiceOrderController {
      * 分配工单
      */
     @Operation(summary = "分配工单")
+    @PreAuthorize("hasAuthority('" + Perms.SERVICE_ORDER_ASSIGN + "')")
     @PutMapping("/{id}/assign")
     public R assign(@PathVariable Long id,
                     @RequestParam Long assigneeId,
@@ -92,6 +100,7 @@ public class ServiceOrderController {
      * 修改工单状态
      */
     @Operation(summary = "修改工单状态")
+    @PreAuthorize("hasAuthority('" + Perms.SERVICE_ORDER_STATUS + "')")
     @PutMapping("/{id}/status")
     public R changeStatus(@PathVariable Long id, @RequestParam Integer status) {
         return orderService.changeStatus(id, status) ? R.ok("修改状态成功") : R.fail("修改状态失败");
@@ -101,6 +110,7 @@ public class ServiceOrderController {
      * 添加满意度评价
      */
     @Operation(summary = "添加满意度评价")
+    @PreAuthorize("hasAuthority('" + Perms.SERVICE_ORDER_SATISFACTION + "')")
     @PutMapping("/{id}/satisfaction")
     public R addSatisfaction(@PathVariable Long id,
                              @RequestParam Integer satisfaction,
@@ -116,6 +126,7 @@ public class ServiceOrderController {
      * @param days 统计天数（默认30天）
      */
     @Operation(summary = "问题反向溯源-高频问题统计")
+    @PreAuthorize("hasAuthority('" + Perms.SERVICE_ORDER_HOT_PROBLEMS + "')")
     @GetMapping("/hot-problems")
     public R hotProblemStats(@RequestParam(defaultValue = "30") int days) {
         return R.ok(orderService.hotProblemStats(days));

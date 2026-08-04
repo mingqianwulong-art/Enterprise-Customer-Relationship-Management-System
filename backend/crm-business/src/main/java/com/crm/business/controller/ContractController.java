@@ -4,10 +4,12 @@ import com.crm.business.entity.Contract;
 import com.crm.business.service.IContractService;
 import com.crm.business.vo.ContractPageDTO;
 import com.crm.common.api.R;
+import com.crm.common.constant.Perms;
 import com.crm.common.security.SecurityUtils;
 import com.crm.system.annotation.Log;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,6 +37,7 @@ public class ContractController {
      * 分页查询合同
      */
     @Operation(summary = "分页查询合同")
+    @PreAuthorize("hasAuthority('" + Perms.CONTRACT_LIST + "')")
     @GetMapping("/page")
     public R page(ContractPageDTO dto) {
         return R.ok(contractService.page(dto));
@@ -44,6 +47,7 @@ public class ContractController {
      * 合同详情
      */
     @Operation(summary = "合同详情")
+    @PreAuthorize("hasAuthority('" + Perms.CONTRACT_LIST + "')")
     @GetMapping("/{id}")
     public R getById(@PathVariable Long id) {
         return R.ok(contractService.getById(id));
@@ -54,6 +58,7 @@ public class ContractController {
      */
     @Operation(summary = "新增合同")
     @Log("新增合同")
+    @PreAuthorize("hasAuthority('" + Perms.CONTRACT_ADD + "')")
     @PostMapping
     public R add(@RequestBody Contract contract) {
         return contractService.addContract(contract) ? R.ok("新增合同成功") : R.fail("新增合同失败");
@@ -63,6 +68,7 @@ public class ContractController {
      * 修改合同
      */
     @Operation(summary = "修改合同")
+    @PreAuthorize("hasAuthority('" + Perms.CONTRACT_EDIT + "')")
     @PutMapping
     public R update(@RequestBody Contract contract) {
         return contractService.updateContract(contract) ? R.ok("修改合同成功") : R.fail("修改合同失败");
@@ -73,6 +79,7 @@ public class ContractController {
      */
     @Operation(summary = "删除合同")
     @Log("删除合同")
+    @PreAuthorize("hasAuthority('" + Perms.CONTRACT_DELETE + "')")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return contractService.deleteContract(id) ? R.ok("删除合同成功") : R.fail("删除合同失败");
@@ -83,6 +90,7 @@ public class ContractController {
      */
     @Operation(summary = "审批合同")
     @Log("审批合同")
+    @PreAuthorize("hasAuthority('" + Perms.CONTRACT_APPROVE + "')")
     @PutMapping("/{id}/approve")
     public R approve(@PathVariable Long id) {
         Long approverId = SecurityUtils.getCurrentUserIdRequired();

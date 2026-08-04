@@ -37,6 +37,7 @@ public class CustomerController {
      * 分页查询客户
      */
     @Operation(summary = "分页查询客户")
+    @PreAuthorize("hasAuthority('" + Perms.CUSTOMER_LIST + "')")
     @GetMapping("/page")
     public R page(CustomerPageDTO dto) {
         return R.ok(customerService.page(dto));
@@ -46,6 +47,7 @@ public class CustomerController {
      * 客户详情（含联系人、标签、跟进记录）
      */
     @Operation(summary = "客户详情（含联系人、标签、跟进记录）")
+    @PreAuthorize("hasAuthority('" + Perms.CUSTOMER_LIST + "')")
     @GetMapping("/{id}")
     public R getDetail(@PathVariable Long id) {
         return R.ok(customerService.getDetail(id));
@@ -109,6 +111,7 @@ public class CustomerController {
      * 公海池分页查询
      */
     @Operation(summary = "公海池分页查询")
+    @PreAuthorize("hasAuthority('" + Perms.CUSTOMER_LIST + "')")
     @GetMapping("/pool/page")
     public R poolPage(CustomerPageDTO dto) {
         return R.ok(customerService.poolPage(dto));

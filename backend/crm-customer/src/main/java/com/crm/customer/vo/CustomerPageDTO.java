@@ -29,5 +29,5 @@ public class CustomerPageDTO {
     private Long ownerId;
 
     /** 客户等级（1普通 2重要 3VIP） */
-    private Integer level;
+    private Integer customerLevel;
 }

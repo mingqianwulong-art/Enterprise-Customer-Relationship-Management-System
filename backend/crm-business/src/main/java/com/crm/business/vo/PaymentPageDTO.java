@@ -22,6 +22,12 @@ public class PaymentPageDTO {
     /** 客户ID */
     private Long customerId;
 
+    /** 合同编号（模糊查询） */
+    private String contractNo;
+
+    /** 客户名称（模糊查询） */
+    private String customerName;
+
     /** 状态 */
     private Integer status;
 }

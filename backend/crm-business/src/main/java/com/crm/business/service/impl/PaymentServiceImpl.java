@@ -43,6 +43,10 @@ public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> impl
                         Payment::getContractId, dto.getContractId())
                 .eq(dto.getCustomerId() != null,
                         Payment::getCustomerId, dto.getCustomerId())
+                .like(dto.getContractNo() != null && !dto.getContractNo().isEmpty(),
+                        Payment::getContractNo, dto.getContractNo())
+                .like(dto.getCustomerName() != null && !dto.getCustomerName().isEmpty(),
+                        Payment::getCustomerName, dto.getCustomerName())
                 .eq(dto.getStatus() != null,
                         Payment::getStatus, dto.getStatus())
                 .orderByDesc(Payment::getCreateTime);

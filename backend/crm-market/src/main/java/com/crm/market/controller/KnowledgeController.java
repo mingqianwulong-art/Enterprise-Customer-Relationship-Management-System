@@ -1,10 +1,12 @@
 package com.crm.market.controller;
 
 import com.crm.common.api.R;
+import com.crm.common.constant.Perms;
 import com.crm.market.entity.Knowledge;
 import com.crm.market.service.IKnowledgeService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +34,7 @@ public class KnowledgeController {
      * 分页查询知识库
      */
     @Operation(summary = "分页查询知识库")
+    @PreAuthorize("hasAuthority('" + Perms.KNOWLEDGE_LIST + "')")
     @GetMapping("/page")
     public R page(@RequestParam(defaultValue = "1") Integer pageNum,
                   @RequestParam(defaultValue = "10") Integer pageSize,
@@ -44,6 +47,7 @@ public class KnowledgeController {
      * 知识详情（浏览次数+1）
      */
     @Operation(summary = "知识详情")
+    @PreAuthorize("hasAuthority('" + Perms.KNOWLEDGE_LIST + "')")
     @GetMapping("/{id}")
     public R getDetail(@PathVariable Long id) {
         return R.ok(knowledgeService.getById(id));
@@ -53,6 +57,7 @@ public class KnowledgeController {
      * 新增知识
      */
     @Operation(summary = "新增知识")
+    @PreAuthorize("hasAuthority('" + Perms.KNOWLEDGE_ADD + "')")
     @PostMapping
     public R add(@RequestBody Knowledge knowledge) {
         return knowledgeService.addKnowledge(knowledge) ? R.ok("新增知识成功") : R.fail("新增知识失败");
@@ -62,6 +67,7 @@ public class KnowledgeController {
      * 修改知识
      */
     @Operation(summary = "修改知识")
+    @PreAuthorize("hasAuthority('" + Perms.KNOWLEDGE_EDIT + "')")
     @PutMapping
     public R update(@RequestBody Knowledge knowledge) {
         return knowledgeService.updateKnowledge(knowledge) ? R.ok("修改知识成功") : R.fail("修改知识失败");
@@ -71,6 +77,7 @@ public class KnowledgeController {
      * 删除知识
      */
     @Operation(summary = "删除知识")
+    @PreAuthorize("hasAuthority('" + Perms.KNOWLEDGE_DELETE + "')")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return knowledgeService.deleteKnowledge(id) ? R.ok("删除知识成功") : R.fail("删除知识失败");

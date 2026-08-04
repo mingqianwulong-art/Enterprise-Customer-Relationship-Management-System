@@ -1,10 +1,12 @@
 package com.crm.market.controller;
 
 import com.crm.common.api.R;
+import com.crm.common.constant.Perms;
 import com.crm.market.entity.Channel;
 import com.crm.market.service.IChannelService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +34,7 @@ public class ChannelController {
      * 分页查询渠道
      */
     @Operation(summary = "分页查询渠道")
+    @PreAuthorize("hasAuthority('" + Perms.CHANNEL_LIST + "')")
     @GetMapping("/page")
     public R page(@RequestParam(defaultValue = "1") Integer pageNum,
                   @RequestParam(defaultValue = "10") Integer pageSize,
@@ -43,6 +46,7 @@ public class ChannelController {
      * 查询所有启用渠道
      */
     @Operation(summary = "查询所有启用渠道")
+    @PreAuthorize("hasAuthority('" + Perms.CHANNEL_LIST + "')")
     @GetMapping("/list")
     public R list() {
         return R.ok(channelService.list());
@@ -52,6 +56,7 @@ public class ChannelController {
      * 渠道效果统计
      */
     @Operation(summary = "渠道效果统计")
+    @PreAuthorize("hasAuthority('" + Perms.CHANNEL_LIST + "')")
     @GetMapping("/stats")
     public R stats() {
         return R.ok(channelService.getStats());
@@ -61,6 +66,7 @@ public class ChannelController {
      * 新增渠道
      */
     @Operation(summary = "新增渠道")
+    @PreAuthorize("hasAuthority('" + Perms.CHANNEL_ADD + "')")
     @PostMapping
     public R add(@RequestBody Channel channel) {
         return channelService.addChannel(channel) ? R.ok("新增渠道成功") : R.fail("新增渠道失败");
@@ -70,6 +76,7 @@ public class ChannelController {
      * 修改渠道
      */
     @Operation(summary = "修改渠道")
+    @PreAuthorize("hasAuthority('" + Perms.CHANNEL_EDIT + "')")
     @PutMapping
     public R update(@RequestBody Channel channel) {
         return channelService.updateChannel(channel) ? R.ok("修改渠道成功") : R.fail("修改渠道失败");
@@ -79,6 +86,7 @@ public class ChannelController {
      * 删除渠道
      */
     @Operation(summary = "删除渠道")
+    @PreAuthorize("hasAuthority('" + Perms.CHANNEL_DELETE + "')")
     @DeleteMapping("/{id}")
     public R delete(@PathVariable Long id) {
         return channelService.deleteChannel(id) ? R.ok("删除渠道成功") : R.fail("删除渠道失败");

@@ -31,6 +31,9 @@ public class CluePageDTO {
     /** 状态（0待分配 1已分配 2已转化 3已废弃） */
     private Integer status;
 
+    /** 线索等级（1低 2中 3高） */
+    private Integer level;
+
     /** 渠道ID */
     private Long channelId;
 }

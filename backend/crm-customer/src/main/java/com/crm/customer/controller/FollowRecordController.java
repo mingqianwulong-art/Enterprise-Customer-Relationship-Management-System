@@ -1,6 +1,7 @@
 package com.crm.customer.controller;
 
 import com.crm.common.api.R;
+import com.crm.common.constant.Perms;
 import com.crm.common.security.SecurityUtils;
 import com.crm.customer.entity.FollowRecord;
 import com.crm.customer.service.IFollowRecordService;
@@ -8,6 +9,7 @@ import com.crm.system.annotation.Log;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +34,7 @@ public class FollowRecordController {
      * 查某客户的跟进记录
      */
     @Operation(summary = "查询客户跟进记录")
+    @PreAuthorize("hasAuthority('" + Perms.CUSTOMER_FOLLOW_LIST + "')")
     @GetMapping("/list/{customerId}")
     public R listByCustomerId(@PathVariable Long customerId) {
         return R.ok(followRecordService.listByCustomerId(customerId));
@@ -41,6 +44,7 @@ public class FollowRecordController {
      * 今日待跟进列表
      */
     @Operation(summary = "今日待跟进列表")
+    @PreAuthorize("hasAuthority('" + Perms.CUSTOMER_FOLLOW_LIST + "')")
     @GetMapping("/today")
     public R todayPending() {
         return R.ok(followRecordService.listTodayPending());
@@ -51,6 +55,7 @@ public class FollowRecordController {
      */
     @Operation(summary = "新增跟进记录")
     @Log("新增跟进")
+    @PreAuthorize("hasAuthority('" + Perms.CUSTOMER_FOLLOW_ADD + "')")
     @PostMapping
     public R add(@RequestBody FollowRecord record) {
         // 覆写 userId 为当前登录用户，防止前端伪造

@@ -252,7 +252,10 @@ const rules = computed<FormRules>(() => ({
   realName: [{ required: true, message: '请输入真实姓名', trigger: 'blur' }],
   // 编辑用户时密码非必填（留空则不修改密码）
   password: isEdit.value ? [] : [{ required: true, message: '请输入密码', trigger: 'blur' }],
-  phone: [{ pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }],
+  phone: [
+    { required: true, message: '请输入手机号', trigger: 'blur' },
+    { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号', trigger: 'blur' }
+  ],
   email: [{ type: 'email', message: '请输入正确的邮箱', trigger: 'blur' }]
 }))
 

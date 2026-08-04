@@ -44,6 +44,8 @@ public class ClueServiceImpl extends ServiceImpl<ClueMapper, Clue> implements IC
                         Clue::getRegion, dto.getRegion())
                 .eq(dto.getStatus() != null,
                         Clue::getStatus, dto.getStatus())
+                .eq(dto.getLevel() != null,
+                        Clue::getLevel, dto.getLevel())
                 .eq(dto.getChannelId() != null,
                         Clue::getChannelId, dto.getChannelId())
                 .orderByDesc(Clue::getCreateTime);

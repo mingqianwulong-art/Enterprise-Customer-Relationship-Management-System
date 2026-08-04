@@ -65,8 +65,6 @@ public class SecurityConfig {
                 .requestMatchers("/webjars/**").permitAll()
                 .requestMatchers("/favicon.ico").permitAll()
                 .requestMatchers("/error").permitAll()
-                // 放行文件上传接口
-                .requestMatchers("/file/**").permitAll()
                 // 放行上传的静态文件（头像等）
                 .requestMatchers("/uploads/**").permitAll()
                 // 其他请求都需要认证
