@@ -29,10 +29,10 @@
         <el-card class="chart-card" shadow="hover">
           <template #header>
             <div class="chart-header">
-              <span>业务增长趋势（近{{ trendMonths }}个月）</span>
-              <el-radio-group v-model="trendMonths" size="small" @change="loadTrend">
-                <el-radio-button :value="6">6个月</el-radio-button>
-                <el-radio-button :value="12">12个月</el-radio-button>
+              <span>{{ trendType === 'daily' ? `近${trendDays}天新增趋势` : `业务增长趋势（近${trendMonths}个月）` }}</span>
+              <el-radio-group v-model="trendType" size="small" @change="loadTrend">
+                <el-radio-button value="monthly">按月</el-radio-button>
+                <el-radio-button value="daily">近30天</el-radio-button>
               </el-radio-group>
             </div>
           </template>
@@ -44,6 +44,9 @@
           <template #header>
             <div class="chart-header">
               <span>客户行业分布</span>
+              <el-button text type="primary" size="small" @click="router.push('/customer/list')">
+                查看明细<el-icon class="el-icon--right"><ArrowRight /></el-icon>
+              </el-button>
             </div>
           </template>
           <div ref="industryChartRef" class="chart-box"></div>
@@ -57,6 +60,9 @@
           <template #header>
             <div class="chart-header">
               <span>销售业绩排行</span>
+              <el-button text type="primary" size="small" @click="router.push('/report/custom')">
+                查看明细<el-icon class="el-icon--right"><ArrowRight /></el-icon>
+              </el-button>
             </div>
           </template>
           <div ref="rankingChartRef" class="chart-box"></div>
@@ -67,6 +73,9 @@
           <template #header>
             <div class="chart-header">
               <span>工单状态分布</span>
+              <el-button text type="primary" size="small" @click="router.push('/service/order')">
+                查看明细<el-icon class="el-icon--right"><ArrowRight /></el-icon>
+              </el-button>
             </div>
           </template>
           <div ref="orderStatusChartRef" class="chart-box"></div>
@@ -78,15 +87,18 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import * as echarts from 'echarts'
 import {
   UserFilled, TrendCharts, ShoppingBag, Money,
-  Ticket, Service
+  Ticket, Service, ArrowRight
 } from '@element-plus/icons-vue'
 import {
-  getOverview, getTrend, getOrderStatusStats,
+  getOverview, getTrend, getDailyTrend, getOrderStatusStats,
   getSalesRanking, getCustomerIndustryStats
 } from '@/api/report'
+
+const router = useRouter()
 
 const loading = ref(false)
 
@@ -152,6 +164,8 @@ let rankingChart: echarts.ECharts | null = null
 let orderStatusChart: echarts.ECharts | null = null
 
 const trendMonths = ref(6)
+const trendType = ref<'monthly' | 'daily'>('monthly')
+const trendDays = ref(30)
 
 function formatNum(val: any): string {
   if (val === null || val === undefined) return '0'
@@ -180,7 +194,10 @@ async function loadOverview() {
 // 加载趋势图
 async function loadTrend() {
   try {
-    const res = await getTrend(trendMonths.value)
+    const isDaily = trendType.value === 'daily'
+    const res = isDaily
+      ? await getDailyTrend(trendDays.value)
+      : await getTrend(trendMonths.value)
     const data = res.data || []
     const months = data.map((d: any) => d.month)
     const customers = data.map((d: any) => d.newCustomers)
@@ -192,7 +209,7 @@ async function loadTrend() {
         tooltip: { trigger: 'axis' },
         legend: { data: ['新增客户', '新增商机', '新增合同'], bottom: 0 },
         grid: { left: 60, right: 20, top: 20, bottom: 35 },
-        xAxis: { type: 'category', data: months },
+        xAxis: { type: 'category', data: months, axisLabel: { rotate: isDaily ? 35 : 0 } },
         yAxis: { type: 'value' },
         series: [
           {
@@ -315,15 +332,23 @@ async function loadOrderStatus() {
 function initCharts() {
   if (trendChartRef.value) {
     trendChart = echarts.init(trendChartRef.value)
+    // 趋势图点击下钻：跳转客户列表
+    trendChart.on('click', () => router.push('/customer/list'))
   }
   if (industryChartRef.value) {
     industryChart = echarts.init(industryChartRef.value)
+    // 行业分布点击下钻：跳转客户列表
+    industryChart.on('click', () => router.push('/customer/list'))
   }
   if (rankingChartRef.value) {
     rankingChart = echarts.init(rankingChartRef.value)
+    // 销售排行点击下钻：跳转自定义报表
+    rankingChart.on('click', () => router.push('/report/custom'))
   }
   if (orderStatusChartRef.value) {
     orderStatusChart = echarts.init(orderStatusChartRef.value)
+    // 工单状态点击下钻：跳转工单列表
+    orderStatusChart.on('click', () => router.push('/service/order'))
   }
 
   window.addEventListener('resize', handleResize)

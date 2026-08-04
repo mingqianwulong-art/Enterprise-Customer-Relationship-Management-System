@@ -17,6 +17,9 @@
             <el-option label="高" :value="3" />
           </el-select>
         </el-form-item>
+        <el-form-item label="所属行业">
+          <el-input v-model="queryParams.industry" placeholder="请输入行业" clearable @keyup.enter="handleQuery" />
+        </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="queryParams.status" placeholder="请选择" clearable style="width: 160px">
             <el-option label="待分配" :value="0" />
@@ -39,9 +42,16 @@
           <el-button type="warning" @click="handleAutoAssignAll" :loading="autoAssigning">
             <el-icon><MagicStick /></el-icon>批量自动分配
           </el-button>
+          <el-button type="success" :disabled="!selectedRows.length" @click="handleBatchAssign">
+            <el-icon><Share /></el-icon>批量分配({{ selectedRows.length }})
+          </el-button>
+          <el-button :disabled="!selectedRows.length" @click="handleBatchExport">
+            <el-icon><Download /></el-icon>批量导出({{ selectedRows.length }})
+          </el-button>
         </div>
       </template>
-      <el-table :data="tableData" v-loading="loading" border style="width: 100%">
+      <el-table :data="tableData" v-loading="loading" border style="width: 100%" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" align="center" />
         <el-table-column label="线索名称" prop="clueName" min-width="140" show-overflow-tooltip />
         <el-table-column label="公司名称" prop="company" min-width="160" show-overflow-tooltip />
         <el-table-column label="联系电话" prop="phone" min-width="130" />
@@ -133,7 +143,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
-import { Search, Refresh, Plus, MagicStick } from '@element-plus/icons-vue'
+import { Search, Refresh, Plus, MagicStick, Share, Download } from '@element-plus/icons-vue'
 import {
   getCluePage,
   addClue,
@@ -155,9 +165,16 @@ const queryParams = reactive({
   pageSize: 10,
   clueName: '',
   source: '',
+  industry: '',
   level: undefined as number | undefined,
   status: undefined as number | undefined
 })
+
+// 批量勾选
+const selectedRows = ref<any[]>([])
+function handleSelectionChange(rows: any[]) {
+  selectedRows.value = rows
+}
 
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
@@ -199,7 +216,7 @@ function levelTagType(level: number): 'info' | 'warning' | 'danger' {
 
 function statusText(status: number) {
   switch (status) {
-    case 1: return '已分配'
+    case 1: return '待跟进'
     case 2: return '已转化'
     case 3: return '已废弃'
     default: return '待分配'
@@ -207,11 +224,12 @@ function statusText(status: number) {
 }
 
 function statusTagType(status: number): 'info' | 'warning' | 'success' | 'danger' {
+  // 红色=待跟进(已分配) 绿色=已转化 黄色=待分配 灰色=已废弃
   switch (status) {
-    case 1: return 'warning'
+    case 1: return 'danger'
     case 2: return 'success'
-    case 3: return 'danger'
-    default: return 'info'
+    case 3: return 'info'
+    default: return 'warning'
   }
 }
 
@@ -247,6 +265,7 @@ function handleQuery() {
 function resetQuery() {
   queryParams.clueName = ''
   queryParams.source = ''
+  queryParams.industry = ''
   queryParams.level = undefined
   queryParams.status = undefined
   queryParams.pageNum = 1
@@ -387,6 +406,62 @@ async function handleAutoAssignAll() {
   } finally {
     autoAssigning.value = false
   }
+}
+
+// ==================== 批量分配 ====================
+async function handleBatchAssign() {
+  if (!selectedRows.value.length) return
+  try {
+    const { value } = await ElMessageBox.prompt(
+      `确认将选中的 ${selectedRows.value.length} 条线索批量分配给同一负责人？请输入用户ID。`,
+      '批量分配',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputPlaceholder: '请输入用户ID（数字）',
+        inputValidator: (val) => {
+          if (val === null || val === undefined || val === '') return '请输入用户ID'
+          if (!/^\d+$/.test(val)) return '用户ID必须为数字'
+          return true
+        }
+      }
+    )
+    const userId = Number(value)
+    await Promise.all(selectedRows.value.map(row => assignClue(row.id, userId)))
+    ElMessage.success(`批量分配成功，共 ${selectedRows.value.length} 条`)
+    loadData()
+  } catch (e) {
+    // 用户取消或请求错误
+  }
+}
+
+// ==================== 批量导出 ====================
+function handleBatchExport() {
+  if (!selectedRows.value.length) return
+  const headers = ['线索名称', '公司名称', '联系电话', '邮箱', '来源', '行业', '区域', '等级', '状态', '创建时间']
+  const rows = selectedRows.value.map(row => [
+    row.clueName || '',
+    row.company || '',
+    row.phone || '',
+    row.email || '',
+    row.source || '',
+    row.industry || '',
+    row.region || '',
+    levelText(row.level),
+    statusText(row.status),
+    row.createTime || ''
+  ])
+  // 添加BOM避免Excel中文乱码
+  const csv = '\uFEFF' + [headers, ...rows]
+    .map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    .join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = `线索导出_${new Date().toISOString().slice(0, 10)}.csv`
+  link.click()
+  URL.revokeObjectURL(link.href)
+  ElMessage.success(`已导出 ${selectedRows.value.length} 条线索`)
 }
 
 async function handleDelete(row: any) {

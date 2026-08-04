@@ -23,6 +23,12 @@ public interface IReportService {
     List<TrendVO> getTrend(int months);
 
     /**
+     * 获取每日趋势数据
+     * @param days 近N天
+     */
+    List<TrendVO> getDailyTrend(int days);
+
+    /**
      * 获取工单状态分布
      */
     List<ServiceStatsVO> getOrderStatusStats();

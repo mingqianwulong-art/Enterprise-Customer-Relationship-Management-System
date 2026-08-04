@@ -1,0 +1,230 @@
+/**
+ * CRM 系统全局移动端响应式适配
+ * 断点：768px 以下为移动端
+ * 原则：侧边栏抽屉化、表格横向滚动、表单堆叠、卡片单列、弹窗全宽
+ */
+
+/* ==================== 移动端适配（< 768px） ==================== */
+@media screen and (max-width: 768px) {
+
+  /* ---------- 布局侧边栏：抽屉化 ---------- */
+  /* 侧边栏默认隐藏，通过 .mobile-open class 控制滑入 */
+  .layout-aside {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 220px !important;
+    z-index: 2001;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
+  }
+  /* 抽屉打开时滑入 */
+  .layout-aside.mobile-open {
+    transform: translateX(0);
+  }
+  .mobile-sidebar-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+  }
+  /* 顶部栏折叠按钮始终可见 */
+  .layout-header {
+    padding: 0 10px !important;
+  }
+  .collapse-btn {
+    padding: 4px !important;
+  }
+
+  /* ---------- 容器与内容区 ---------- */
+  .app-container,
+  .page-container {
+    padding: 10px !important;
+  }
+  .layout-main {
+    padding: 10px !important;
+  }
+
+  /* ---------- 搜索表单 ---------- */
+  .el-form--inline .el-form-item {
+    margin-right: 0;
+    margin-bottom: 10px;
+    width: 100%;
+  }
+  .el-form--inline .el-form-item .el-input,
+  .el-form--inline .el-form-item .el-select {
+    width: 100% !important;
+  }
+  .el-form--inline .el-form-item:last-child {
+    margin-bottom: 0;
+  }
+  /* 固定宽度的 select 在移动端撑满 */
+  .el-form--inline .el-select .el-select__wrapper {
+    width: 100% !important;
+  }
+
+  /* ---------- 卡片头部按钮区 ---------- */
+  .card-header {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .card-header .el-button {
+    margin-left: 0 !important;
+  }
+  /* 搜索卡片间距收紧 */
+  .search-card {
+    margin-bottom: 10px !important;
+  }
+
+  /* ---------- 栅格单列堆叠 ---------- */
+  .el-row .el-col-6,
+  .el-row .el-col-8,
+  .el-row .el-col-10,
+  .el-row .el-col-12,
+  .el-row .el-col-14,
+  .el-row .el-col-16 {
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+    margin-bottom: 12px;
+  }
+
+  /* ---------- 统计卡片 ---------- */
+  .data-cards .el-col,
+  .stats-row .el-col {
+    margin-bottom: 10px;
+  }
+  .stat-card {
+    margin-bottom: 0;
+  }
+  .stat-value {
+    font-size: 20px !important;
+  }
+
+  /* ---------- 图表区域 ---------- */
+  .chart-row .el-col {
+    margin-bottom: 12px;
+  }
+  .chart-box {
+    height: 240px !important;
+  }
+
+  /* ---------- 表格 ---------- */
+  .el-table {
+    font-size: 13px;
+  }
+  .el-table .el-button--small {
+    padding: 5px 8px;
+  }
+  /* 表格操作列按钮换行排列，避免横向溢出过多 */
+  .el-table .el-button + .el-button {
+    margin-left: 6px;
+  }
+
+  /* ---------- 分页器 ---------- */
+  .el-pagination {
+    justify-content: center !important;
+    flex-wrap: wrap;
+  }
+  .el-pagination .el-pagination__jump,
+  .el-pagination .el-pagination__sizes {
+    margin: 4px 0;
+  }
+
+  /* ---------- 弹窗 ---------- */
+  .el-dialog {
+    width: 92% !important;
+    margin: 5vh auto !important;
+  }
+  .el-dialog__body {
+    max-height: 65vh;
+    overflow-y: auto;
+  }
+  /* 表单弹窗内栅格也单列 */
+  .el-dialog .el-row .el-col-12 {
+    max-width: 100% !important;
+    flex: 0 0 100% !important;
+  }
+
+  /* ---------- 面包屑隐藏 ---------- */
+  .el-breadcrumb {
+    display: none !important;
+  }
+
+  /* ---------- 工作台 ---------- */
+  .welcome-text h3 {
+    font-size: 16px !important;
+  }
+  .welcome-text p {
+    font-size: 12px !important;
+  }
+  .quick-entry-list {
+    flex-wrap: wrap;
+    gap: 12px !important;
+  }
+  .quick-item {
+    min-width: calc(33% - 12px);
+  }
+
+  /* ---------- 客户详情页 ---------- */
+  .customer-detail .detail-sidebar {
+    width: 100% !important;
+    margin-bottom: 12px;
+  }
+  /* 详情页标签页内容区可滚动 */
+  .el-tabs__content {
+    overflow-x: auto;
+  }
+
+  /* ---------- 描述列表（el-descriptions）---------- */
+  .el-descriptions {
+    width: 100%;
+  }
+  .el-descriptions__body {
+    overflow-x: auto;
+  }
+
+  /* ---------- 消息面板 ---------- */
+  .el-popover.el-popper {
+    width: 90% !important;
+    max-width: 360px;
+  }
+
+  /* ---------- 用户信息下拉 ---------- */
+  .user-info .user-name {
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---------- 登录/注册页 ---------- */
+  .login-container,
+  .register-container {
+    padding: 16px !important;
+  }
+  .login-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-direction: column !important;
+  }
+  .login-banner {
+    display: none !important;
+  }
+  .login-form-wrapper {
+    width: 100% !important;
+    padding: 24px 16px !important;
+  }
+}
+
+/* ==================== 平板适配（769px ~ 1024px） ==================== */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .el-row .el-col-6 {
+    max-width: 50% !important;
+    flex: 0 0 50% !important;
+  }
+}

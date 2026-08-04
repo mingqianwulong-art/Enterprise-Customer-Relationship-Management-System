@@ -21,4 +21,7 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=builder /build/crm-admin/target/crm-admin.jar app.jar
 EXPOSE 8080
+# 健康检查：每30秒检测后端是否响应（swagger-ui 为免认证路径）
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD wget -q --spider http://localhost:8080/swagger-ui.html || exit 1
 ENTRYPOINT ["java", "-jar", "app.jar"]

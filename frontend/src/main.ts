@@ -8,6 +8,8 @@ import App from './App.vue'
 import router from './router'
 import pinia from './stores'
 import { permission } from './directive/permission'
+// 全局移动端响应式适配样式（放 Element Plus 之后以覆盖默认样式）
+import './assets/responsive.css'
 
 const app = createApp(App)
 

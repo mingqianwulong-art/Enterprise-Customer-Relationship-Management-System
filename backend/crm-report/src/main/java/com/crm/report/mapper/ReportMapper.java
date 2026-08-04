@@ -155,6 +155,35 @@ public interface ReportMapper {
             "</script>")
     List<TrendVO> getTrend(@Param("months") int months, @Param("ownerIds") List<Long> ownerIds);
 
+    // ==================== 每日趋势数据（近N天） ====================
+
+    @Select("<script>" +
+            "SELECT t.day AS month, " +
+            "SUM(t.new_customers) AS newCustomers, " +
+            "SUM(t.new_opportunities) AS newOpportunities, " +
+            "SUM(t.new_contracts) AS newContracts, " +
+            "SUM(t.contract_amount) AS contractAmount " +
+            "FROM ( " +
+            "  SELECT DATE(create_time) AS day, 1 AS new_customers, 0 AS new_opportunities, 0 AS new_contracts, 0 AS contract_amount " +
+            "  FROM cus_customer WHERE deleted = 0 " +
+            "  <if test='ownerIds != null'>AND owner_id IN " +
+            "  <foreach collection='ownerIds' item='id' open='(' separator=',' close=')'>#{id}</foreach></if>" +
+            "  UNION ALL " +
+            "  SELECT DATE(create_time), 0, 1, 0, 0 " +
+            "  FROM bus_opportunity WHERE deleted = 0 " +
+            "  <if test='ownerIds != null'>AND owner_id IN " +
+            "  <foreach collection='ownerIds' item='id' open='(' separator=',' close=')'>#{id}</foreach></if>" +
+            "  UNION ALL " +
+            "  SELECT DATE(create_time), 0, 0, 1, COALESCE(amount, 0) " +
+            "  FROM bus_contract WHERE deleted = 0 " +
+            "  <if test='ownerIds != null'>AND owner_id IN " +
+            "  <foreach collection='ownerIds' item='id' open='(' separator=',' close=')'>#{id}</foreach></if>" +
+            ") t " +
+            "WHERE t.day >= DATE_SUB(CURDATE(), INTERVAL #{days} DAY) " +
+            "GROUP BY t.day ORDER BY t.day" +
+            "</script>")
+    List<TrendVO> getDailyTrend(@Param("days") int days, @Param("ownerIds") List<Long> ownerIds);
+
     // ==================== 工单状态分布 ====================
 
     @Select("<script>" +

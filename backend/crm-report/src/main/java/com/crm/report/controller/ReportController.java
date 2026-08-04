@@ -39,6 +39,13 @@ public class ReportController {
         return R.ok(reportService.getTrend(months));
     }
 
+    @Operation(summary = "获取每日趋势数据")
+    @PreAuthorize("hasAuthority('" + Perms.REPORT_DASHBOARD_LIST + "')")
+    @GetMapping("/trend-daily")
+    public R<List<TrendVO>> getDailyTrend(@RequestParam(defaultValue = "30") int days) {
+        return R.ok(reportService.getDailyTrend(days));
+    }
+
     @Operation(summary = "获取工单状态分布")
     @PreAuthorize("hasAuthority('" + Perms.REPORT_DASHBOARD_LIST + "')")
     @GetMapping("/order-status")

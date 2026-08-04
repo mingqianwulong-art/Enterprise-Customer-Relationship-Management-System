@@ -12,6 +12,11 @@ export function getTrend(months: number = 6) {
   return request({ url: '/report/trend', method: 'get', params: { months } })
 }
 
+/** 获取每日趋势数据（近N天） */
+export function getDailyTrend(days: number = 30) {
+  return request({ url: '/report/trend-daily', method: 'get', params: { days } })
+}
+
 /** 获取工单状态分布 */
 export function getOrderStatusStats() {
   return request({ url: '/report/order-status', method: 'get' })

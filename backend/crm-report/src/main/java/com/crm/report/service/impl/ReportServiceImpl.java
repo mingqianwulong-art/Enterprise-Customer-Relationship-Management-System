@@ -97,6 +97,11 @@ public class ReportServiceImpl implements IReportService {
     }
 
     @Override
+    public List<TrendVO> getDailyTrend(int days) {
+        return reportMapper.getDailyTrend(days, dataPermissionService.getVisibleOwnerIds());
+    }
+
+    @Override
     public List<ServiceStatsVO> getOrderStatusStats() {
         return reportMapper.getOrderStatusStats(dataPermissionService.getVisibleOwnerIds());
     }

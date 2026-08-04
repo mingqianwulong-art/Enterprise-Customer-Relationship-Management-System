@@ -1,7 +1,13 @@
 <template>
   <el-container class="layout-container">
+    <!-- 移动端抽屉遮罩层 -->
+    <div
+      v-if="appStore.mobileSidebarOpen"
+      class="mobile-sidebar-mask"
+      @click="appStore.closeMobileSidebar()"
+    />
     <!-- 左侧边栏 -->
-    <el-aside :width="appStore.sidebarCollapsed ? '64px' : '220px'" class="layout-aside">
+    <el-aside :width="appStore.sidebarCollapsed ? '64px' : '220px'" class="layout-aside" :class="{ 'mobile-open': appStore.mobileSidebarOpen }">
       <div class="aside-logo" @click="appStore.toggleSidebar()">
         <el-icon v-if="!appStore.sidebarCollapsed" :size="28" color="#409eff"><DataAnalysis /></el-icon>
         <span v-if="!appStore.sidebarCollapsed" class="logo-title">CRM 系统</span>
@@ -261,6 +267,8 @@ function handleMenuSelect(index: string) {
     return
   }
   router.push(index)
+  // 移动端选中后自动关闭抽屉
+  appStore.closeMobileSidebar()
 }
 
 /** 处理用户下拉菜单命令 */
