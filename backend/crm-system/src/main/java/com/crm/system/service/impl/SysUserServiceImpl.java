@@ -323,6 +323,27 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     /**
+     * 修改当前用户密码（验证旧密码）
+     */
+    @Override
+    public boolean changePassword(Long userId, String oldPassword, String newPassword) {
+        SysUser user = baseMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException("用户不存在");
+        }
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BusinessException("原密码不正确");
+        }
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new BusinessException("新密码不能与原密码相同");
+        }
+        SysUser update = new SysUser();
+        update.setId(userId);
+        update.setPassword(passwordEncoder.encode(newPassword));
+        return baseMapper.updateById(update) > 0;
+    }
+
+    /**
      * 修改用户状态
      */
     @Override

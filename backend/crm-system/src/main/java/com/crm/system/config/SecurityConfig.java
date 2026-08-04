@@ -41,6 +41,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // 启用 CORS（使用 WebMvcConfigurer 中注册的跨域配置）
+            .cors(cors -> {})
             // 禁用 CSRF（无状态，不使用 Cookie）
             .csrf(csrf -> csrf.disable())
             // 无状态会话
@@ -67,6 +69,8 @@ public class SecurityConfig {
                 .requestMatchers("/error").permitAll()
                 // 放行上传的静态文件（头像等）
                 .requestMatchers("/uploads/**").permitAll()
+                // 放行文件上传接口（头像上传等）
+                .requestMatchers("/file/**").permitAll()
                 // 其他请求都需要认证
                 .anyRequest().authenticated()
             )

@@ -5,20 +5,20 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 /**
- * 登录请求DTO
+ * 修改密码请求DTO
  *
  * @author CRM
  */
 @Data
-public class LoginDTO {
+public class ChangePasswordDTO {
 
-    /** 用户名 */
-    @NotBlank(message = "用户名不能为空")
-    private String username;
+    /** 旧密码 */
+    @NotBlank(message = "原密码不能为空")
+    private String oldPassword;
 
-    /** 密码（8-20位，必须包含大小写字母、数字和特殊字符） */
-    @NotBlank(message = "密码不能为空")
+    /** 新密码（8-20位，必须包含大小写字母、数字和特殊字符） */
+    @NotBlank(message = "新密码不能为空")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).{8,20}$",
             message = "密码必须8-20位，且包含大小写字母、数字和特殊字符")
-    private String password;
+    private String newPassword;
 }

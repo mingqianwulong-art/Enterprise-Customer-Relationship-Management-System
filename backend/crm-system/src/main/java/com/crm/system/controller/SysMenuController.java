@@ -36,6 +36,7 @@ public class SysMenuController {
      * 查询菜单树
      */
     @Operation(summary = "查询菜单树")
+    @PreAuthorize("hasAuthority('" + Perms.MENU_LIST + "')")
     @GetMapping("/tree")
     public R tree() {
         return R.ok(menuService.getAllMenuTree());
@@ -45,6 +46,7 @@ public class SysMenuController {
      * 查询菜单详情
      */
     @Operation(summary = "查询菜单详情")
+    @PreAuthorize("hasAuthority('" + Perms.MENU_LIST + "')")
     @GetMapping("/{id}")
     public R getById(@PathVariable Long id) {
         return R.ok(menuService.getById(id));

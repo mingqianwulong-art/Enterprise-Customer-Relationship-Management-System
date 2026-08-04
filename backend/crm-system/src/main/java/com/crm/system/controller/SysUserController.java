@@ -40,6 +40,7 @@ public class SysUserController {
      * 分页查询用户
      */
     @Operation(summary = "分页查询用户")
+    @PreAuthorize("hasAuthority('" + Perms.USER_LIST + "')")
     @GetMapping("/page")
     public R page(UserPageDTO dto) {
         return R.ok(userService.page(dto));
@@ -49,6 +50,7 @@ public class SysUserController {
      * 查询用户详情
      */
     @Operation(summary = "查询用户详情")
+    @PreAuthorize("hasAuthority('" + Perms.USER_LIST + "')")
     @GetMapping("/{id}")
     public R getById(@PathVariable Long id) {
         SysUser user = userService.getById(id);
@@ -98,7 +100,12 @@ public class SysUserController {
     @Log("重置密码")
     @PreAuthorize("hasAuthority('" + Perms.USER_RESET + "')")
     @PutMapping("/resetPwd")
-    public R resetPwd(@RequestParam Long userId, @RequestParam String password) {
+    public R resetPwd(
+            @RequestParam Long userId,
+            @RequestParam @jakarta.validation.constraints.Pattern(
+                    regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^\\w\\s]).{8,20}$",
+                    message = "密码必须8-20位，且包含大小写字母、数字和特殊字符"
+            ) String password) {
         return userService.resetPassword(userId, password) ? R.ok() : R.fail("重置失败");
     }
 

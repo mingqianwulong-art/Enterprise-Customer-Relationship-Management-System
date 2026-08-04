@@ -124,6 +124,19 @@
   .el-table .el-button + .el-button {
     margin-left: 6px;
   }
+  /* 移动端取消表格左右固定列（如操作列），避免遮挡列表内容 */
+  /* Element Plus 固定列通过 JS 内联 style 设置 position:sticky 和 left/right，
+     需用 [style] 属性选择器提高优先级覆盖内联样式 */
+  .el-table .el-table-fixed-column--right[style],
+  .el-table .el-table-fixed-column--left[style] {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+  }
+  /* 取消固定列阴影伪元素 */
+  .el-table__fixed-right-patch {
+    display: none !important;
+  }
 
   /* ---------- 分页器 ---------- */
   .el-pagination {

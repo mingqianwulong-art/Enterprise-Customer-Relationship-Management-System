@@ -36,6 +36,7 @@ public class SysDeptController {
      * 查询部门树
      */
     @Operation(summary = "查询部门树")
+    @PreAuthorize("hasAuthority('" + Perms.DEPT_LIST + "')")
     @GetMapping("/tree")
     public R tree() {
         return R.ok(deptService.listDeptTree());
@@ -45,6 +46,7 @@ public class SysDeptController {
      * 查询部门详情
      */
     @Operation(summary = "查询部门详情")
+    @PreAuthorize("hasAuthority('" + Perms.DEPT_LIST + "')")
     @GetMapping("/{id}")
     public R getById(@PathVariable Long id) {
         return R.ok(deptService.getById(id));

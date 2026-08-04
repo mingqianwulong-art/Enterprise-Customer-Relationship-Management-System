@@ -38,6 +38,7 @@ public class SysRoleController {
      * 分页查询角色
      */
     @Operation(summary = "分页查询角色")
+    @PreAuthorize("hasAuthority('" + Perms.ROLE_LIST + "')")
     @GetMapping("/page")
     public R page(@RequestParam(defaultValue = "1") Integer pageNum,
                   @RequestParam(defaultValue = "10") Integer pageSize,
@@ -53,6 +54,7 @@ public class SysRoleController {
      * 查询角色详情
      */
     @Operation(summary = "查询角色详情")
+    @PreAuthorize("hasAuthority('" + Perms.ROLE_LIST + "')")
     @GetMapping("/{id}")
     public R getById(@PathVariable Long id) {
         return R.ok(roleService.getById(id));
@@ -95,6 +97,7 @@ public class SysRoleController {
      * 查询所有角色（下拉选择用）
      */
     @Operation(summary = "查询所有角色（下拉选择）")
+    @PreAuthorize("hasAuthority('" + Perms.ROLE_LIST + "')")
     @GetMapping("/list")
     public R list() {
         return R.ok(roleService.list(new LambdaQueryWrapper<SysRole>().eq(SysRole::getStatus, 1)));

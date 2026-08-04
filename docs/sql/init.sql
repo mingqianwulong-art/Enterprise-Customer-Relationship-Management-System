@@ -149,13 +149,13 @@ INSERT INTO sys_role (id, role_code, role_name, data_scope, remark) VALUES
 (5, 'SERVICE', '售后客服',   1, '工单处理'),
 (6, 'PRODUCT', '产品部门',   4, '数据看板查看');
 
--- 3.3 用户数据（密码全部是 123456 的 BCrypt 加密）
--- BCrypt 加密串："123456" → $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
+-- 3.3 用户数据（密码全部是 @Abc1234 的 BCrypt 加密）
+-- BCrypt 加密串："@Abc1234" → $2a$10$QjmwfUPHT/x.4oQcMdgwXOxzxhZJASsYtjEOivqb95ZIPYlPL4ifi
 INSERT INTO sys_user (id, dept_id, username, password, real_name, phone, sex, status) VALUES
-(1, 2, 'admin',   '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '系统管理员', '13800000001', 1, 1),
-(2, 3, 'sale01',  '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '张销售',     '13800000002', 1, 1),
-(3, 4, 'market01','$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', '李市场',     '13800000003', 2, 1),
-(4, 5, 'service01','$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy','王售后',     '13800000004', 2, 1);
+(1, 2, 'admin',   '$2a$10$QjmwfUPHT/x.4oQcMdgwXOxzxhZJASsYtjEOivqb95ZIPYlPL4ifi', '系统管理员', '13800000001', 1, 1),
+(2, 3, 'sale01',  '$2a$10$QjmwfUPHT/x.4oQcMdgwXOxzxhZJASsYtjEOivqb95ZIPYlPL4ifi', '张销售',     '13800000002', 1, 1),
+(3, 4, 'market01','$2a$10$QjmwfUPHT/x.4oQcMdgwXOxzxhZJASsYtjEOivqb95ZIPYlPL4ifi', '李市场',     '13800000003', 2, 1),
+(4, 5, 'service01','$2a$10$QjmwfUPHT/x.4oQcMdgwXOxzxhZJASsYtjEOivqb95ZIPYlPL4ifi','王售后',     '13800000004', 2, 1);
 
 -- 3.4 用户-角色关联
 INSERT INTO sys_user_role (user_id, role_id) VALUES
@@ -179,7 +179,7 @@ INSERT INTO sys_menu (id, parent_id, name, path, component, perms, icon, type, o
 (9,  2, '渠道管理', '/market/channel',  'market/channel/index',  'market:channel:list', 'Share',   2, 2),
 (10, 2, '知识库',   '/market/knowledge','market/knowledge/index','market:knowledge:list','Document',2, 3),
 -- 客户管理子菜单
-(11, 3, '客户列表', '/customer/list',   'customer/list/index',   'customer:list:list',  'UserFilled',2, 1),
+(11, 3, '客户列表', '/customer/list',   'customer/list/index',   'customer:customer:list',  'UserFilled',2, 1),
 (12, 3, '公海池',   '/customer/pool',   'customer/pool/index',   'customer:pool:list', 'Box',       2, 2),
 (13, 3, '标签管理', '/customer/tag',    'customer/tag/index',    'customer:tag:list',  'PriceTag',  2, 3),
 -- 商机销售子菜单

@@ -4,6 +4,7 @@ import com.crm.common.api.R;
 import com.crm.common.constant.Constants;
 import com.crm.common.security.SecurityUtils;
 import com.crm.system.annotation.Log;
+import com.crm.system.dto.ChangePasswordDTO;
 import com.crm.system.dto.ForgotPasswordDTO;
 import com.crm.system.dto.LoginDTO;
 import com.crm.system.dto.RegisterDTO;
@@ -16,6 +17,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -108,6 +111,18 @@ public class AuthController {
         // 删除 Redis 中的登录令牌
         redisTemplate.delete(Constants.LOGIN_TOKEN_KEY + userId);
         return R.ok();
+    }
+
+    /**
+     * 修改当前用户密码（验证旧密码）
+     */
+    @Operation(summary = "修改密码")
+    @Log("修改密码")
+    @PostMapping("/change-password")
+    public R changePassword(@RequestBody @Valid ChangePasswordDTO dto) {
+        Long userId = getCurrentUserId();
+        userService.changePassword(userId, dto.getOldPassword(), dto.getNewPassword());
+        return R.ok("密码修改成功");
     }
 
     /**

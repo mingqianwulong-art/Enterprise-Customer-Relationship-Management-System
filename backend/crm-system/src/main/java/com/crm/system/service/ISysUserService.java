@@ -88,6 +88,16 @@ public interface ISysUserService extends IService<SysUser> {
     boolean resetPassword(Long userId, String password);
 
     /**
+     * 修改当前用户密码（验证旧密码）
+     *
+     * @param userId      用户ID
+     * @param oldPassword 旧密码（明文）
+     * @param newPassword 新密码（明文，内部加密）
+     * @return 是否成功
+     */
+    boolean changePassword(Long userId, String oldPassword, String newPassword);
+
+    /**
      * 修改用户状态
      *
      * @param userId 用户ID

@@ -38,6 +38,9 @@ public class Perms {
     public static final String DEPT_EDIT = "system:dept:edit";
     public static final String DEPT_DELETE = "system:dept:delete";
 
+    // 操作日志
+    public static final String SYS_LOG_LIST = "system:log:list";
+
     // ==================== 市场获客 ====================
     // 线索管理
     public static final String CLUE_LIST = "market:clue:list";

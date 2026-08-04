@@ -197,7 +197,7 @@ public class ServiceOrderServiceImpl extends ServiceImpl<ServiceOrderMapper, Ser
                         "工单【%s】已处理完成，请对本次服务进行满意度评价。",
                         order.getOrderNo());
                 messageService.sendMessage(
-                        order.getCreatorId() != null ? order.getCreatorId() : order.getAssigneeId(),
+                        order.getAssigneeId(),
                         "满意度调研：" + order.getOrderNo(),
                         content,
                         3,

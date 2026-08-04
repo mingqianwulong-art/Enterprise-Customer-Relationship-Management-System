@@ -55,7 +55,11 @@ const rules: FormRules = {
   oldPassword: [{ required: true, message: '请输入当前密码', trigger: 'blur' }],
   newPassword: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' },
+    {
+      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,20}$/,
+      message: '密码必须8-20位，且包含大小写字母、数字和特殊字符',
+      trigger: 'blur'
+    },
     { validator: validateNewPassword, trigger: ['blur', 'change'] }
   ],
   confirmPassword: [
